@@ -12,6 +12,7 @@
 #else
 #include <termios.h>
 #include <unistd.h>
+#include <sys/select.h>
 #endif
 
 void runServer(std::string port);
@@ -95,42 +96,55 @@ int main(const int argc, char *argv[]) {
     }
     return 0;
 }
-/*
-void userInputThread(Socket &client, const std::stop_token& stoken) {
-    while (!stoken.stop_requested()) {
-        std::string user_input;
-        std::getline(std::cin, user_input);
 
-        if (user_input == "quit" || user_input == "exit") {
-            shouldExit = true;
-            break;
-        }
-
-        client.sendMessage(user_input, -1);
-    }
-}*/
 bool inputAvailable() {
 #ifdef _WIN32
     return _kbhit();
 #else
-    struct timeval tv;
+    timeval tv{};
     fd_set fds;
     tv.tv_sec = 0;
     tv.tv_usec = 0;
     FD_ZERO(&fds);
     FD_SET(STDIN_FILENO, &fds);
-    select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+    select(STDIN_FILENO + 1, &fds, nullptr, nullptr, &tv);
     return FD_ISSET(STDIN_FILENO, &fds);
 #endif
 }
-void userInputThread(Socket &client, const std::stop_token& stoken) {
+
+#ifndef _WIN32
+char getch() {
+    char buf = 0;
+    termios old = {0};
+    fflush(stdout);
+    if (tcgetattr(0, &old) < 0) perror("tcsetattr()");
+    old.c_lflag &= ~ICANON;
+    old.c_lflag &= ~ECHO;
+    old.c_cc[VMIN] = 1;
+    old.c_cc[VTIME] = 0;
+    if (tcsetattr(0, TCSANOW, &old) < 0) perror("tcsetattr ICANON");
+    if (read(0, &buf, 1) < 0) perror("read()");
+    old.c_lflag |= ICANON;
+    old.c_lflag |= ECHO;
+    if (tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
+    return buf;
+}
+#endif
+void userInputThread(Socket &client, const std::stop_token &stoken) {
     std::string user_input;
 
     while (!stoken.stop_requested()) {
         if (inputAvailable()) {
-            int c = _getch();
-            if (c == 13) {
+#ifdef _WIN32
+            int c = _getch():
+#else
+            const char c = getch();
+#endif
+            if (c == 13 || c == 10) {
+                // Enter key (13 for Windows, 10 for Linux)
+#ifdef _WIN32
                 std::cout << std::endl;
+#endif
                 if (user_input == "quit" || user_input == "exit") {
                     shouldExit = true;
                     break;
@@ -139,14 +153,17 @@ void userInputThread(Socket &client, const std::stop_token& stoken) {
                     client.sendMessage(user_input, -1);
                     user_input.clear();
                 }
-            } else if (c == 8) {
+            } else if (c == 8 || c == 127) {
+                // Backspace (8 for Windows, 127 for Linux)
                 if (!user_input.empty()) {
                     user_input.pop_back();
                     std::cout << "\b \b";
                 }
             } else if (c >= 32 && c <= 126) {
                 user_input += static_cast<char>(c);
+#ifdef _WIN32
                 std::cout << static_cast<char>(c);
+#endif
             }
             std::cout.flush();
         }

@@ -1,4 +1,6 @@
 #include "WindowsSocket.h"
+
+#ifdef _WIN32
 #include <vector>
 #include "Globals.h"
 
@@ -159,3 +161,5 @@ std::string WindowsSocket::receiveMessage(const std::pair<unsigned int, std::str
 
     return "";
 }
+
+#endif

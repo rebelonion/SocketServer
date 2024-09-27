@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
-
+#include <utility>
+#include <optional>
+#include <stdexcept>
 
 class  SocketInterface {
 public:

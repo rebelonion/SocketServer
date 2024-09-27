@@ -19,6 +19,7 @@ void ClientSocket::sendMessage(const std::string &message, unsigned int client) 
         logger.log(Logger::LogLevel::Error, "Socket not initialized\n");
         return;
     }
+    logger.log(Logger::LogLevel::Debug, "Sending message: " + message);
     //don't need to check if client is valid, since it's a client
     m_socket->sendMessage(message);
 }

@@ -42,6 +42,8 @@ add_executable(SocketServer
         src/socket/interface/WindowsSocket.h
         src/util/StringMod.cpp
         src/util/StringMod.h
+        src/socket/interface/LinuxSocket.cpp
+        src/socket/interface/LinuxSocket.h
 )
 
 if (WIN32)
