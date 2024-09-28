@@ -136,7 +136,7 @@ void userInputThread(Socket &client, const std::stop_token &stoken) {
     while (!stoken.stop_requested()) {
         if (inputAvailable()) {
 #ifdef _WIN32
-            int c = _getch():
+            int c = _getch();
 #else
             const char c = getch();
 #endif
