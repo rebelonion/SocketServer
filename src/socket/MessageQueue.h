@@ -6,15 +6,15 @@
 #include <queue>
 
 class MessageQueue {
-    std::queue<std::string> queue;
+    std::queue<std::wstring> queue;
     mutable std::mutex mtx;
     std::condition_variable cv;
     bool stopped = false;
 
 public:
-    void push(const std::string &msg);
+    void push(const std::wstring &msg);
 
-    std::optional<std::string> pop(const std::stop_token& stopToken);
+    std::optional<std::wstring> pop(const std::stop_token& stopToken);
 
     void stop();
 

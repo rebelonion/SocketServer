@@ -14,7 +14,7 @@ public:
 
     virtual void initSocket(std::string port);
 
-    virtual void sendMessage(const std::string &message, unsigned int client) = 0;
+    virtual void sendMessage(const std::wstring &message, unsigned int client) = 0;
 
     void listenThread(MessageQueue &receivedMessages);
 
@@ -28,7 +28,7 @@ private:
     bool m_isServer = false;
 
 protected:
-    virtual std::generator<std::string> receiveMessages() = 0;
+    virtual std::generator<std::wstring> receiveMessages() = 0;
 
     std::unique_ptr<SocketInterface> m_socket;
 };

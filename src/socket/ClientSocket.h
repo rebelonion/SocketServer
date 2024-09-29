@@ -10,7 +10,7 @@ public:
 
     void initSocket(const std::string &port, const std::string &hostname);
 
-    void sendMessage(const std::string &message, unsigned int client) override;
+    void sendMessage(const std::wstring &message, unsigned int client) override;
 
 
     void startThreads() override;
@@ -20,9 +20,9 @@ public:
 private:
     void connectToServer();
 
-    [[nodiscard]] std::string receiveMessage() const;
+    [[nodiscard]] std::wstring receiveMessage() const;
 
-    std::generator<std::string> receiveMessages() override;
+    std::generator<std::wstring> receiveMessages() override;
 
     std::string m_hostname;
 };

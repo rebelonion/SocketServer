@@ -14,7 +14,9 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)
 
 if (MINGW)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+    endif ()
 elseif (MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO /NODEFAULTLIB:MSVCRT")
@@ -25,7 +27,7 @@ endif ()
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/util
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/gui
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/tui
         ${CMAKE_CURRENT_SOURCE_DIR}/src/socket
 )
 
@@ -43,7 +45,7 @@ add_executable(SocketServer
         src/Globals.cpp
         src/socket/MessageQueue.cpp
         src/socket/MessageQueue.h
-        src/gui/Terminfo.h
+        src/tui/Terminfo.h
         src/socket/interface/SocketInterface.h
         src/socket/interface/WindowsSocket.cpp
         src/socket/interface/WindowsSocket.h
@@ -51,6 +53,20 @@ add_executable(SocketServer
         src/util/StringMod.h
         src/socket/interface/LinuxSocket.cpp
         src/socket/interface/LinuxSocket.h
+        src/tui/Buffer.cpp
+        src/tui/Buffer.h
+        src/tui/Drawable.h
+        src/tui/Movable.cpp
+        src/tui/Movable.h
+        src/tui/TUIItem.h
+        src/tui/TextBox.cpp
+        src/tui/TextBox.h
+        src/util/ThreadSafeVector.cpp
+        src/util/ThreadSafeVector.h
+        src/tui/TUI.cpp
+        src/tui/TUI.h
+        src/util/UserInput.cpp
+        src/util/UserInput.h
 )
 
 if (WIN32)

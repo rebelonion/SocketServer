@@ -1,14 +1,14 @@
 #include "MessageQueue.h"
 
-void MessageQueue::push(const std::string &msg) {
+void MessageQueue::push(const std::wstring &msg) {
     std::lock_guard lock(mtx);
     queue.push(msg);
     cv.notify_one();
 }
 
-std::optional<std::string> MessageQueue::pop(const std::stop_token& stopToken) {
+std::optional<std::wstring> MessageQueue::pop(const std::stop_token& stopToken) {
     std::unique_lock lock(mtx);
-    const auto _ = cv.wait_for(lock, std::chrono::milliseconds(100), [this, &stopToken] {
+    const auto _ = cv.wait_for(lock, std::chrono::milliseconds(10), [this, &stopToken] {
         return !queue.empty() || stopped || stopToken.stop_requested();
     });
 
@@ -21,7 +21,7 @@ std::optional<std::string> MessageQueue::pop(const std::stop_token& stopToken) {
     }
 
     if (!queue.empty()) {
-        std::string msg = queue.front();
+        std::wstring msg = queue.front();
         queue.pop();
         return msg;
     }

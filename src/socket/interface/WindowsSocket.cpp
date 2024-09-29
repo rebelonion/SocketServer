@@ -1,5 +1,7 @@
 #include "WindowsSocket.h"
 
+#include "StringMod.h"
+
 #ifdef _WIN32
 #include <vector>
 #include "Globals.h"
@@ -25,19 +27,19 @@ bool WindowsSocket::isValid() {
     return m_socket != INVALID_SOCKET;
 }
 
-void WindowsSocket::sendMessage(const std::string &message) {
+void WindowsSocket::sendMessage(const std::wstring &message) {
     sendMessage(message, {m_socket, "host"});
 }
 
-void WindowsSocket::sendMessageToClient(const std::string &message, const std::pair<unsigned int, std::string> &client) {
+void WindowsSocket::sendMessageToClient(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
     sendMessage(message, client);
 }
 
-std::string WindowsSocket::receiveMessage() {
+std::wstring WindowsSocket::receiveMessage() {
     return receiveMessage({m_socket, "host"});
 }
 
-std::string WindowsSocket::receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) {
+std::wstring WindowsSocket::receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) {
     return receiveMessage(client);
 }
 
@@ -111,8 +113,8 @@ void WindowsSocket::createSocket() {
     logger.log(Logger::LogLevel::Info, "Socket created");
 }
 
-void WindowsSocket::sendMessage(const std::string &message, const std::pair<unsigned int, std::string> &client) {
-    if (send(client.first, message.c_str(), static_cast<int>(message.length()), 0) == SOCKET_ERROR) {
+void WindowsSocket::sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
+    if (send(client.first, StringMod::toString(message).c_str(), static_cast<int>(message.length()), 0) == SOCKET_ERROR) {
         throw std::runtime_error("Error sending message");
     }
 }
@@ -124,7 +126,7 @@ void WindowsSocket::setNonBlocking(const SOCKET socket) {
     }
 }
 
-std::string WindowsSocket::receiveMessage(const std::pair<unsigned int, std::string> &client) {
+std::wstring WindowsSocket::receiveMessage(const std::pair<unsigned int, std::string> &client) {
     std::vector<char> buffer(4096);
     fd_set readSet;
     FD_ZERO(&readSet);
@@ -150,16 +152,16 @@ std::string WindowsSocket::receiveMessage(const std::pair<unsigned int, std::str
 
                 throw std::runtime_error("Error reading from socket. Error code: " + std::to_string(error));
             }
-            return "";
+            return L"";
         }
         if (bytesReceived == 0) {
-            return "";
+            return L"";
         }
         buffer[bytesReceived] = '\0';
-        return {buffer.data()};
+        return {buffer.begin(), buffer.begin() + bytesReceived};
     }
 
-    return "";
+    return L"";
 }
 
 #endif

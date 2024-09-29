@@ -21,12 +21,12 @@ void ServerSocket::acceptAndHandleConnection(const std::stop_token &stoken) {
     }
 }
 
-void ServerSocket::sendMessage(const std::string &message, const unsigned int client) {
+void ServerSocket::sendMessage(const std::wstring &message, const unsigned int client) {
     if (!m_socket->isValid()) {
         logger.log(Logger::LogLevel::Error, "Socket not initialized\n");
         return;
     }
-    logger.log(Logger::LogLevel::Debug, "Sending message: " + message);
+    logger.log(Logger::LogLevel::Debug, L"Sending message: " + message);
     std::string sender = "Server";
     unsigned int color = 31;
     if (client != -1) {
@@ -39,7 +39,7 @@ void ServerSocket::sendMessage(const std::string &message, const unsigned int cl
             color = StringMod::chooseColor(position);
         }
     }
-    const std::string messageToSend = StringMod::color(sender, color) + ": " + message;
+    const std::wstring messageToSend = StringMod::color(StringMod::toWString(sender), color) + L": " + message;
     std::lock_guard lock(m_clientsMutex);
     for (const auto &clientSocket: m_clients) {
         if (client != clientSocket.first) {
@@ -48,7 +48,7 @@ void ServerSocket::sendMessage(const std::string &message, const unsigned int cl
     }
 }
 
-std::generator<std::string> ServerSocket::receiveMessages() {
+std::generator<std::wstring> ServerSocket::receiveMessages() {
     while (!m_connectionListenerThread.get_stop_token().stop_requested() && !shouldExit) {
         std::unique_lock lock(m_queueMutex);
 
@@ -63,7 +63,7 @@ std::generator<std::string> ServerSocket::receiveMessages() {
 
         if (messageAvailable) {
             while (!m_messageQueue.empty()) {
-                co_yield m_messageQueue.front().first + m_messageQueue.front().second;
+                co_yield StringMod::toWString(m_messageQueue.front().first) + m_messageQueue.front().second;
                 m_messageQueue.pop();
             }
         }

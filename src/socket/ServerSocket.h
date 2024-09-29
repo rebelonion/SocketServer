@@ -11,7 +11,7 @@ public:
 
     void initSocket(std::string port) override;
 
-    void sendMessage(const std::string &message, unsigned int client) override;
+    void sendMessage(const std::wstring &message, unsigned int client) override;
 
     void startThreads() override;
 
@@ -22,14 +22,14 @@ private:
 
     void messageReceiverThread(const std::stop_token& stoken);
 
-    std::generator<std::string> receiveMessages() override;
+    std::generator<std::wstring> receiveMessages() override;
 
     std::vector<std::pair<unsigned int, std::string>> m_clients;
     std::mutex m_clientsMutex;
     std::atomic<bool> m_isRunning{true};
     std::mutex m_queueMutex;
     std::condition_variable m_queueCV;
-    std::queue<std::pair<std::string, std::string>> m_messageQueue;
+    std::queue<std::pair<std::string, std::wstring>> m_messageQueue;
 
     std::jthread m_connectionListenerThread;
     std::jthread m_messageReceiverThread;
