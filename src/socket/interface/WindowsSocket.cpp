@@ -114,9 +114,11 @@ void WindowsSocket::createSocket() {
 }
 
 void WindowsSocket::sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
-    if (send(client.first, StringMod::toString(message).c_str(), static_cast<int>(message.length()), 0) == SOCKET_ERROR) {
+    const std::string utf8Message = StringMod::toString(message);
+    if (send(client.first, utf8Message.c_str(), static_cast<int>(utf8Message.length()), 0) == SOCKET_ERROR) {
         throw std::runtime_error("Error sending message");
     }
+    logger.log(Logger::LogLevel::Debug, L"Sent message: " + message);
 }
 
 void WindowsSocket::setNonBlocking(const SOCKET socket) {
@@ -158,7 +160,8 @@ std::wstring WindowsSocket::receiveMessage(const std::pair<unsigned int, std::st
             return L"";
         }
         buffer[bytesReceived] = '\0';
-        return {buffer.begin(), buffer.begin() + bytesReceived};
+        const std::string utf8Message(buffer.data());
+        return StringMod::toWString(utf8Message);
     }
 
     return L"";
