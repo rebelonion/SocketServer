@@ -23,7 +23,7 @@ void ServerSocket::acceptAndHandleConnection(const std::stop_token &stoken) {
 
 void ServerSocket::sendMessage(const std::wstring &message, const unsigned int client) {
     if (!m_socket->isValid()) {
-        logger.log(Logger::LogLevel::Error, "Socket not initialized\n");
+        logger.log(Logger::LogLevel::Error, "Socket not initialized");
         return;
     }
     logger.log(Logger::LogLevel::Debug, L"Sending message: " + message);

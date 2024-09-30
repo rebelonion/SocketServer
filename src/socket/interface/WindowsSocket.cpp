@@ -89,12 +89,11 @@ std::optional<std::pair<unsigned int, std::string>> WindowsSocket::acceptConnect
             logger.log(Logger::LogLevel::Error, "Error accepting new socket: " + std::to_string(error));
             return std::nullopt;
         }
-        logger.log(Logger::LogLevel::Error, "Error accepting new socket");
     }
     setNonBlocking(clientSocket);
     char clientIP[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
-    logger.log(Logger::LogLevel::Info, std::format("Socket Accepted from {}\n", clientIP));
+    logger.log(Logger::LogLevel::Info, L"Socket Accepted from: " + StringMod::toWString(clientIP));
     return std::make_pair(clientSocket, clientIP);
 }
 

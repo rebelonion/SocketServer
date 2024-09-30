@@ -63,7 +63,7 @@ void TUI::quickFullRender() {
 #ifdef _WIN32
     const auto hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE) {
-        logger.log(Logger::LogLevel::Error, std::format(L"Failed to get console handle. Error: {}\n", GetLastError()));
+        logger.log(Logger::LogLevel::Error, std::format(L"Failed to get console handle. Error: {}", GetLastError()));
         return;
     }
 

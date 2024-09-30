@@ -19,7 +19,7 @@
 #include <sys/select.h>
 #endif
 
-void runServer(const std::string& port);
+void runServer(const std::string &port);
 
 void runClient(const std::string &port, const std::string &address);
 
@@ -98,7 +98,7 @@ int main(const int argc, char *argv[]) {
     return 0;
 }
 
-void runChatApplication(Socket* socket, const std::string& port, const std::string& address = "") {
+void runChatApplication(Socket *socket, const std::string &port, const std::string &address = "") {
     std::wstring userChat;
     auto size = TermInfo::getTerminalSize();
     const int maxChats = size.second - 4;
@@ -107,7 +107,7 @@ void runChatApplication(Socket* socket, const std::string& port, const std::stri
     }
     TUI tui(size.first, size.second);
     const auto chats = std::make_shared<TextBox>(1, 1, tui.getWidth() - 2, maxChats);
-    auto cLog = [chats] (const std::wstring& message) {
+    auto cLog = [chats](const std::wstring &message) {
         chats->addLine(message);
     };
 
@@ -118,16 +118,15 @@ void runChatApplication(Socket* socket, const std::string& port, const std::stri
 
     MessageQueue receivedMessages;
 
-    if (auto* server = dynamic_cast<ServerSocket*>(socket)) {
+    if (auto *server = dynamic_cast<ServerSocket *>(socket)) {
         server->initSocket(port);
         logger.log(Logger::LogLevel::Debug, "Port: " + port);
-    } else if (auto* client = dynamic_cast<ClientSocket*>(socket)) {
+    } else if (auto *client = dynamic_cast<ClientSocket *>(socket)) {
         client->initSocket(port, address);
         logger.log(Logger::LogLevel::Debug, "Address: " + address);
     } else {
         throw std::runtime_error("Invalid socket type");
     }
-
 
 
     std::jthread listener(&Socket::listenThread, std::ref(*socket), std::ref(receivedMessages));
@@ -168,16 +167,16 @@ void runChatApplication(Socket* socket, const std::string& port, const std::stri
     logger.log(Logger::LogLevel::Debug, "Requesting stop");
 }
 
-void runServer(const std::string& port) {
-    const auto server = dynamic_cast<ServerSocket*>(appSocket.get());
+void runServer(const std::string &port) {
+    const auto server = dynamic_cast<ServerSocket *>(appSocket.get());
     if (!server) {
         throw std::runtime_error("ServerSocket cast failed");
     }
     runChatApplication(server, port);
 }
 
-void runClient(const std::string& port, const std::string& address) {
-    const auto client = dynamic_cast<ClientSocket*>(appSocket.get());
+void runClient(const std::string &port, const std::string &address) {
+    const auto client = dynamic_cast<ClientSocket *>(appSocket.get());
     if (!client) {
         throw std::runtime_error("ClientSocket cast failed");
     }

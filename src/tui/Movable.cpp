@@ -1,7 +1,7 @@
 #include "Movable.h"
 
-Movable::Movable(const std::vector<std::vector<std::wstring>> &frames, const double delay, const int x, const int y,
-    const int w, const int h): TUIItem(x, y, w, h), m_frames(frames), m_frameDelay(delay) {
+Movable::Movable(const std::vector<std::vector<std::wstring> > &frames, const double delay, const int x, const int y,
+                 const int w, const int h): TUIItem(x, y, w, h), m_frames(frames), m_frameDelay(delay) {
 }
 
 bool Movable::update(const double delta, Buffer &buffer) {

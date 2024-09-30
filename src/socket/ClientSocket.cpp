@@ -11,12 +11,12 @@ void ClientSocket::initSocket(const std::string& port, const std::string &hostna
 
 void ClientSocket::connectToServer() {
     m_socket->connectTo(m_hostname);
-    logger.log(Logger::LogLevel::Info, std::format("Connected to {}\n", m_hostname));
+    logger.log(Logger::LogLevel::Info, std::format("Connected to {}", m_hostname));
 }
 
 void ClientSocket::sendMessage(const std::wstring &message, unsigned int client) {
     if (!m_socket->isValid()) {
-        logger.log(Logger::LogLevel::Error, "Socket not initialized\n");
+        logger.log(Logger::LogLevel::Error, "Socket not initialized");
         return;
     }
     logger.log(Logger::LogLevel::Debug, L"Sending message: " + message);
@@ -31,7 +31,7 @@ std::wstring ClientSocket::receiveMessage() const {
     try {
         return m_socket->receiveMessage();
     } catch (SocketClosedException &_) {
-        logger.log(Logger::LogLevel::Error, "Socket closed\n");
+        logger.log(Logger::LogLevel::Error, "Socket closed");
         shouldExit = true;
         return L"";
     }

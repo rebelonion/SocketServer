@@ -1,6 +1,7 @@
 #include "TextBox.h"
 
-TextBox::TextBox(const int x, const int y, const int width, const int height): TUIItem(x, y, width, height) {}
+TextBox::TextBox(const int x, const int y, const int width, const int height): TUIItem(x, y, width, height) {
+}
 
 bool TextBox::update(double _, Buffer &buffer) {
     if (!m_redrawNeeded) return false;
@@ -22,7 +23,7 @@ bool TextBox::update(double _, Buffer &buffer) {
         if (line.length() > static_cast<size_t>(m_width)) {
             line = line.substr(0, m_width);
         }
-        line += emptyLine.substr(line.length());
+        buffer.draw(m_x, currentY, emptyLine);
         buffer.draw(m_x, currentY, line);
         lineIndex++;
     }

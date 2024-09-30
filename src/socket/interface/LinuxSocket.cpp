@@ -107,7 +107,7 @@ std::optional<std::pair<unsigned int, std::string> > LinuxSocket::acceptConnecti
     setNonBlocking(clientSocket);
     char clientIP[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
-    logger.log(Logger::LogLevel::Info, std::format("Socket Accepted from {}\n", clientIP));
+    logger.log(Logger::LogLevel::Info, std::format("Socket Accepted from {}", clientIP));
     return std::make_pair(clientSocket, clientIP);
 }
 

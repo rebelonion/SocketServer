@@ -20,7 +20,7 @@ std::wstring StringMod::toWString(const std::string &str) {
     std::wstring result;
     result.reserve(str.length()); // Reserve space for best-case scenario
 
-    for (size_t i = 0; i < str.length(); ) {
+    for (size_t i = 0; i < str.length();) {
         char32_t codepoint = 0;
 
         if (const auto c = static_cast<unsigned char>(str[i]); c <= 0x7F) {
@@ -33,7 +33,8 @@ std::wstring StringMod::toWString(const std::string &str) {
             codepoint = ((c & 0x0F) << 12) | ((str[i + 1] & 0x3F) << 6) | (str[i + 2] & 0x3F);
             i += 3;
         } else if (c <= 0xF7 && i + 3 < str.length()) {
-            codepoint = ((c & 0x07) << 18) | ((str[i + 1] & 0x3F) << 12) | ((str[i + 2] & 0x3F) << 6) | (str[i + 3] & 0x3F);
+            codepoint = ((c & 0x07) << 18) | ((str[i + 1] & 0x3F) << 12) | ((str[i + 2] & 0x3F) << 6) | (
+                            str[i + 3] & 0x3F);
             i += 4;
         } else {
             throw std::runtime_error("Invalid UTF-8 sequence");
@@ -58,7 +59,7 @@ std::string StringMod::toString(const std::wstring &str) {
     std::string result;
     result.reserve(str.length() * 4); // Reserve space for worst-case scenario
 
-    for (const char32_t c : str) {
+    for (const char32_t c: str) {
         if (c <= 0x7F) {
             result.push_back(static_cast<char>(c));
         } else if (c <= 0x7FF) {
@@ -80,4 +81,73 @@ std::string StringMod::toString(const std::wstring &str) {
     }
 
     return result;
+}
+
+int StringMod::ViewableCharCount(const std::wstring &str) {
+    int count = 0;
+    bool in_escape_sequence = false;
+
+    for (size_t i = 0; i < str.length(); ++i) {
+        const wchar_t c = str[i];
+
+        //escape sequences
+        if (c == L'\033') {
+            in_escape_sequence = true;
+            continue;
+        }
+        if (in_escape_sequence) {
+            if ((c >= L'A' && c <= L'Z') || (c >= L'a' && c <= L'z')) {
+                in_escape_sequence = false;
+            }
+            continue;
+        }
+
+        //other control characters and zero-width characters
+        if (c < 32 || (c >= 0x200B && c <= 0x200F) || (c >= 0xFE00 && c <= 0xFE0F)) {
+            continue;
+        }
+
+        //all other characters
+        ++count;
+
+        //surrogate pairs (emoji and other non-BMP characters)
+        if (i + 1 < str.length() && (c >= 0xD800 && c <= 0xDBFF) && (str[i + 1] >= 0xDC00 && str[i + 1] <= 0xDFFF)) {
+            ++i; //skip the low surrogate
+        }
+    }
+    return count;
+}
+
+bool StringMod::isViewable(const wchar_t c) {
+    //control characters
+    if (c < 32) {
+        return false;
+    }
+
+    //zero-width characters
+    if (c >= 0x200B && c <= 0x200F) {
+        return false;
+    }
+
+    //emoji and other non-BMP characters
+    if (isHighSurrogate(c)) {
+        return true;
+    }
+    if (isLowSurrogate(c)) {
+        return true;
+    }
+
+    return true;
+}
+
+bool StringMod::isHighSurrogate(const wchar_t c) {
+    return c >= 0xD800 && c <= 0xDBFF;
+}
+
+bool StringMod::isLowSurrogate(const wchar_t c) {
+    return c >= 0xDC00 && c <= 0xDFFF;
+}
+
+bool StringMod::isSurrogatePair(const wchar_t high, const wchar_t low) {
+    return isHighSurrogate(high) && isLowSurrogate(low);
 }
