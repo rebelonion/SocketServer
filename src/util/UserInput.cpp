@@ -6,6 +6,8 @@
 #include <termios.h>
 #include <unistd.h>
 #include <sys/select.h>
+#include <codecvt>
+#include <locale>
 #endif
 #include <stdexcept>
 

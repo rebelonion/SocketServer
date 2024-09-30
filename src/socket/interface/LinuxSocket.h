@@ -15,13 +15,13 @@ public:
 
     bool isValid() override;
 
-    void sendMessage(const std::string &message) override;
+    void sendMessage(const std::wstring &message) override;
 
-    void sendMessageToClient(const std::string &message, const std::pair<unsigned int, std::string> &client) override;
+    void sendMessageToClient(const std::wstring &message, const std::pair<unsigned int, std::string> &client) override;
 
-    std::string receiveMessage() override;
+    std::wstring receiveMessage() override;
 
-    std::string receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) override;
+    std::wstring receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) override;
 
     void connectTo(std::string hostname) override;
 
@@ -39,9 +39,9 @@ private:
 
     static void setNonBlocking(int socket);
 
-    static void sendMessage(const std::string &message, const std::pair<unsigned int, std::string> &client);
+    static void sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client);
 
-    static std::string receiveMessage(const std::pair<unsigned int, std::string> &client);
+    static std::wstring receiveMessage(const std::pair<unsigned int, std::string> &client);
 };
 
 #endif

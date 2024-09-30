@@ -18,7 +18,7 @@ TUI::TUI(const int w, const int h): m_buffer(w, h), m_prevBuffer(w, h), m_width(
     _setmode(_fileno(stdout), _O_U16TEXT);
 #elif __linux__
         std::locale::global(std::locale("en_US.UTF-8"));
-        std::wcout.imbue(std::locale())
+        std::wcout.imbue(std::locale());
 #endif
     clearScreen();
     hideCursor();

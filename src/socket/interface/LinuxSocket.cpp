@@ -6,6 +6,8 @@
 #include <optional>
 #include <stdexcept>
 
+#include "StringMod.h"
+
 #ifdef __linux__
 
 #include <sys/socket.h>
@@ -42,19 +44,19 @@ bool LinuxSocket::isValid() {
     return m_socket != -1;
 }
 
-void LinuxSocket::sendMessage(const std::string &message) {
+void LinuxSocket::sendMessage(const std::wstring &message) {
     sendMessage(message, {m_socket, "host"});
 }
 
-void LinuxSocket::sendMessageToClient(const std::string &message, const std::pair<unsigned int, std::string> &client) {
+void LinuxSocket::sendMessageToClient(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
     sendMessage(message, client);
 }
 
-std::string LinuxSocket::receiveMessage() {
+std::wstring LinuxSocket::receiveMessage() {
     return receiveMessage({m_socket, "host"});
 }
 
-std::string LinuxSocket::receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) {
+std::wstring LinuxSocket::receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) {
     return receiveMessage(client);
 }
 
@@ -129,13 +131,14 @@ void LinuxSocket::setNonBlocking(const int socket) {
     }
 }
 
-void LinuxSocket::sendMessage(const std::string &message, const std::pair<unsigned int, std::string> &client) {
-    if (const int maxFd = static_cast<int>(std::min(static_cast<unsigned int>(INT_MAX), client.first)); send(maxFd, message.c_str(), message.length(), 0) == -1) {
+void LinuxSocket::sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
+    const std::string utf8Message = StringMod::toString(message);
+    if (const int maxFd = static_cast<int>(std::min(static_cast<unsigned int>(INT_MAX), client.first)); send(maxFd, utf8Message.c_str(), utf8Message.length(), 0) == -1) {
         throw std::runtime_error("Error sending message");
     }
 }
 
-std::string LinuxSocket::receiveMessage(const std::pair<unsigned int, std::string> &client) {
+std::wstring LinuxSocket::receiveMessage(const std::pair<unsigned int, std::string> &client) {
     std::vector<char> buffer(4096);
     fd_set readSet;
     FD_ZERO(&readSet);
@@ -161,16 +164,17 @@ std::string LinuxSocket::receiveMessage(const std::pair<unsigned int, std::strin
                 }
                 throw std::runtime_error("Error reading from socket. Error code: " + std::to_string(errno));
             }
-            return "";
+            return L"";
         }
         if (bytesReceived == 0) {
-            return "";
+            return L"";
         }
         buffer[bytesReceived] = '\0';
-        return {buffer.data()};
+        const std::string utf8Message(buffer.data());
+        return StringMod::toWString(utf8Message);
     }
 
-    return "";
+    return L"";
 }
 
 #endif
