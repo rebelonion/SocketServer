@@ -41,21 +41,26 @@ std::optional<std::wstring> UserInput::getInput(std::wstring oldVal) {
             if (const WCHAR ch = record.Event.KeyEvent.uChar.UnicodeChar; ch == L'\r' || ch == L'\n') {
                 SetConsoleMode(hStdin, mode);
                 return oldVal;
-            } else if (ch == L'\b') {
-                if (!oldVal.empty()) {
-                    if (oldVal.length() >= 2 &&
-                        (oldVal[oldVal.length() - 2] & 0xFC00) == 0xD800 &&
-                        (oldVal[oldVal.length() - 1] & 0xFC00) == 0xDC00) {
-                        // This is a surrogate pair, remove both characters
-                        oldVal.pop_back();
-                        oldVal.pop_back();
-                    } else {
-                        oldVal.pop_back();
+            } else {
+                if (ch == L'\b') {
+                    if (!oldVal.empty()) {
+                        if (oldVal.length() >= 2 &&
+                            (oldVal[oldVal.length() - 2] & 0xFC00) == 0xD800 &&
+                            (oldVal[oldVal.length() - 1] & 0xFC00) == 0xDC00) {
+                            // This is a surrogate pair, remove both characters
+                            oldVal.pop_back();
+                            oldVal.pop_back();
+                        } else {
+                            oldVal.pop_back();
+                        }
+                        return oldVal;
                     }
-                    return oldVal;
+                    // empty string
+                    return std::nullopt;
                 }
-            } else if (ch != 0) {
-                return oldVal + ch;
+                if (ch != 0) {
+                    return oldVal + ch;
+                }
             }
         }
     }

@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "Globals.h"
+#include "StringMod.h"
 
 TUI::TUI(const int w, const int h): m_buffer(w, h), m_prevBuffer(w, h), m_width(w), m_height(h) {
 #ifdef _WIN32
@@ -37,9 +38,9 @@ void TUI::draw(const int x, const int y, const std::wstring &str) {
 }
 
 void TUI::render() {
-    updateTItems();
     m_lastFrameTime = std::chrono::duration<double>(
         std::chrono::system_clock::now().time_since_epoch()).count();
+    updateTItems();
     if (m_redrawNeeded) {
         for (int y = 0; y < m_height; ++y) {
             if (m_buffer.getLine(y) != m_prevBuffer.getLine(y)) {
@@ -57,6 +58,7 @@ void TUI::render() {
 
 void TUI::quickFullRender() {
 #ifdef _WIN32
+    updateTItems();
     const auto hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE) {
         logger.log(Logger::LogLevel::Error, std::format(L"Failed to get console handle. Error: {}", GetLastError()));
@@ -103,7 +105,7 @@ void TUI::removeTItem(const TUIItem *item) {
 
 void TUI::updateTItems() {
     for (const auto &item: m_TUIItems) {
-        m_redrawNeeded = m_redrawNeeded || item->update(m_lastFrameTime, m_buffer);
+        m_redrawNeeded = item->update(m_lastFrameTime, m_buffer) || m_redrawNeeded;
     }
 }
 

@@ -8,8 +8,10 @@ bool Movable::update(const double delta, Buffer &buffer) {
     if (delta - m_lastFrameTime > m_frameDelay) {
         m_lastFrameTime = delta;
         m_currentFrame = (m_currentFrame + 1) % static_cast<int>(m_frames.size());
+        const std::wstring emptyLine(m_width, L' ');
         const auto toDraw = m_frames[m_currentFrame];
         for (auto line = 0; line < toDraw.size(); ++line) {
+            buffer.draw(m_x, m_y + line, emptyLine);
             buffer.draw(m_x, m_y + line, toDraw[line]);
         }
         return true;

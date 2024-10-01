@@ -9,6 +9,8 @@
 #include "ServerSocket.h"
 #include "ClientSocket.h"
 #include "Globals.h"
+#include "Movable.h"
+#include "Spinners.h"
 #include "Terminfo.h"
 #include "TextBox.h"
 #include "TUI.h"
@@ -26,6 +28,7 @@ void runServer(const std::string &port);
 void runClient(const std::string &port, const std::string &address);
 
 std::unique_ptr<Socket> appSocket = nullptr;
+bool fun = false;
 
 int main(const int argc, char *argv[]) {
     try {
@@ -48,6 +51,8 @@ int main(const int argc, char *argv[]) {
                 } else {
                     throw std::runtime_error("Port argument is missing");
                 }
+            } else if (arg == "-f" || arg == "--fun") {
+                fun = true;
             } else if (arg == "-l" || arg == "--log-level") {
                 if (i + 1 < argc) {
                     switch (std::string logLevel = argv[++i]; logLevel[0]) {
@@ -108,7 +113,7 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
         size = {80, 24};
     }
     TUI tui(size.first, size.second);
-    const auto chats = std::make_shared<TextBox>(1, 1, tui.getWidth() - 2, maxChats);
+    const auto chats = std::make_shared<TextBox>(1, 1, tui.getWidth() - 23, maxChats);
     auto cLog = [chats](const std::wstring &message) {
         chats->addLine(message);
     };
@@ -117,9 +122,19 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
     chats->setDirection(TextBox::Direction::DOWN);
     const auto box = std::make_shared<Box>(0, 0, tui.getWidth(), tui.getHeight());
     box->addCrossbar(tui.getHeight() - 3);
+    const auto usersBox = std::make_shared<Box>(tui.getWidth() - 22, 0, 22, tui.getHeight() - 2);
+    usersBox->addCrossbar(2);
+    const auto conUserMovable = std::make_shared<
+        Movable>(Spinners().randomSpinner(fun), 0.08, tui.getWidth() - 8, 1, 7, 1);
+
     tui.offerTItem(box);
+    tui.offerTItem(usersBox);
+    tui.offerTItem(conUserMovable);
     tui.offerTItem(chats);
+
     tui.draw(2, tui.getHeight() - 2, L"█");
+    tui.draw(tui.getWidth() - 21, 1, L"Connections: ");
+    tui.quickFullRender();
 
     MessageQueue receivedMessages;
 

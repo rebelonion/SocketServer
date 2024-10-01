@@ -12,4 +12,6 @@ struct Drawable {
     static constexpr wchar_t RIGHT_TEE = L'├';
     static constexpr wchar_t BOTTOM_TEE = L'┴';
     static constexpr wchar_t TOP_TEE = L'┬';
+
+    static constexpr wchar_t CROSS = L'┼';
 };

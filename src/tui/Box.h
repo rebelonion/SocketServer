@@ -9,6 +9,8 @@ public:
 
     bool update(double delta, Buffer &buffer) override;
 
+    void updateIntersections(Buffer &buffer);
+
     void addCrossbar(int y);
 
 private:
