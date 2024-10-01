@@ -9,8 +9,6 @@
 #include <thread>
 #include <cstdlib>
 #include <iostream>
-
-#include "Drawable.h"
 #include "Globals.h"
 
 TUI::TUI(const int w, const int h): m_buffer(w, h), m_prevBuffer(w, h), m_width(w), m_height(h) {
@@ -22,8 +20,6 @@ TUI::TUI(const int w, const int h): m_buffer(w, h), m_prevBuffer(w, h), m_width(
 #endif
     clearScreen();
     hideCursor();
-    drawBox();
-    drawSplitBar(m_height - 3);
     quickFullRender();
 }
 
@@ -125,29 +121,4 @@ void TUI::hideCursor() {
 
 void TUI::showCursor() {
     std::wcout << L"\033[?25h";
-}
-
-void TUI::drawBox() {
-    for (int x = 0; x < m_width; ++x) {
-        draw(x, 0, &Drawable::HORIZONTAL);
-        draw(x, m_height - 1, &Drawable::HORIZONTAL);
-    }
-
-    for (int y = 1; y < m_height - 1; ++y) {
-        draw(0, y, &Drawable::VERTICAL);
-        draw(m_width - 1, y, &Drawable::VERTICAL);
-    }
-
-    draw(0, 0, &Drawable::TOP_LEFT);
-    draw(m_width - 1, 0, &Drawable::TOP_RIGHT);
-    draw(0, m_height - 1, &Drawable::BOTTOM_LEFT);
-    draw(m_width - 1, m_height - 1, &Drawable::BOTTOM_RIGHT);
-}
-
-void TUI::drawSplitBar(const int y) {
-    draw(0, y, &Drawable::RIGHT_TEE);
-    draw(m_width - 1, y, &Drawable::LEFT_TEE);
-    for (int x = 1; x < m_width - 1; ++x) {
-        draw(x, y, &Drawable::HORIZONTAL);
-    }
 }

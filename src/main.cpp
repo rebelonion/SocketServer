@@ -2,6 +2,8 @@
 #include <utility>
 #include <vector>
 #include <memory>
+
+#include "Box.h"
 #include "Logger.h"
 #include "Socket.h"
 #include "ServerSocket.h"
@@ -113,6 +115,9 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
 
     logger.setCustomLogFunction(cLog);
     chats->setDirection(TextBox::Direction::DOWN);
+    const auto box = std::make_shared<Box>(0, 0, tui.getWidth(), tui.getHeight());
+    box->addCrossbar(tui.getHeight() - 3);
+    tui.offerTItem(box);
     tui.offerTItem(chats);
     tui.draw(2, tui.getHeight() - 2, L"█");
 

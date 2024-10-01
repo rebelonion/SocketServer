@@ -67,6 +67,8 @@ add_executable(SocketServer
         src/tui/TUI.h
         src/util/UserInput.cpp
         src/util/UserInput.h
+        src/tui/Box.cpp
+        src/tui/Box.h
 )
 
 if (WIN32)

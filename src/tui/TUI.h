@@ -45,8 +45,4 @@ private:
     static void hideCursor();
 
     static void showCursor();
-
-    void drawBox();
-
-    void drawSplitBar(int y);
 };
