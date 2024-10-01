@@ -31,7 +31,8 @@ void WindowsSocket::sendMessage(const std::wstring &message) {
     sendMessage(message, {m_socket, "host"});
 }
 
-void WindowsSocket::sendMessageToClient(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
+void WindowsSocket::sendMessageToClient(const std::wstring &message,
+                                        const std::pair<unsigned int, std::string> &client) {
     sendMessage(message, client);
 }
 
@@ -72,7 +73,7 @@ void WindowsSocket::bindAndListen() {
     }
 }
 
-std::optional<std::pair<unsigned int, std::string>> WindowsSocket::acceptConnectionListener() {
+std::optional<std::pair<unsigned int, std::string> > WindowsSocket::acceptConnectionListener() {
     if (!m_isNonBlocking) {
         setNonBlocking(m_socket);
         m_isNonBlocking = true;
@@ -115,7 +116,8 @@ void WindowsSocket::createSocket() {
 void WindowsSocket::sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
     const std::string utf8Message = StringMod::toString(message);
     if (send(client.first, utf8Message.c_str(), static_cast<int>(utf8Message.length()), 0) == SOCKET_ERROR) {
-        throw std::runtime_error("Error sending message");
+        logger.log(Logger::LogLevel::Error, "Error sending message. Error code: " + std::to_string(WSAGetLastError()));
+        return;
     }
     logger.log(Logger::LogLevel::Debug, L"Sent message: " + message);
 }
@@ -147,7 +149,8 @@ std::wstring WindowsSocket::receiveMessage(const std::pair<unsigned int, std::st
         const int bytesReceived = recv(client.first, buffer.data(), static_cast<int>(buffer.size()) - 1, 0);
         if (bytesReceived == SOCKET_ERROR) {
             if (const int error = WSAGetLastError(); error != WSAEWOULDBLOCK) {
-                if (error == WSAECONNRESET) {
+                if (error == WSAECONNRESET || error == WSAESHUTDOWN || error == WSAENOTCONN || error ==
+                    WSAECONNABORTED) {
                     throw SocketClosedException(client.second, client);
                 }
 
@@ -156,7 +159,7 @@ std::wstring WindowsSocket::receiveMessage(const std::pair<unsigned int, std::st
             return L"";
         }
         if (bytesReceived == 0) {
-            return L"";
+            throw SocketClosedException(client.second, client);
         }
         buffer[bytesReceived] = '\0';
         const std::string utf8Message(buffer.data());

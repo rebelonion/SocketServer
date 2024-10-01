@@ -14,7 +14,7 @@ public:
 
     static std::string toString(const std::wstring &str);
 
-    static int ViewableCharCount(const std::wstring &str);
+    static int viewableCharCount(const std::wstring &str);
 
     static bool isViewable(wchar_t c);
 

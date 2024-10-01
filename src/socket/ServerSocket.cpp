@@ -21,6 +21,11 @@ void ServerSocket::acceptAndHandleConnection(const std::stop_token &stoken) {
     }
 }
 
+std::vector<std::pair<unsigned int, std::string> > ServerSocket::getClients() {
+    std::lock_guard lock(m_clientsMutex);
+    return m_clients;
+}
+
 void ServerSocket::sendMessage(const std::wstring &message, const unsigned int client) {
     if (!m_socket->isValid()) {
         logger.log(Logger::LogLevel::Error, "Socket not initialized");

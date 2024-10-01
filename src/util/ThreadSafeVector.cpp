@@ -12,6 +12,11 @@ void ThreadSafeVector::remove(const int index) {
     }
 }
 
+void ThreadSafeVector::clear() {
+    std::lock_guard lock(mutex);
+    vec.clear();
+}
+
 std::wstring ThreadSafeVector::get(const int index) {
     std::lock_guard lock(mutex);
     if (index >= 0 && index < vec.size()) {

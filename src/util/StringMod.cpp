@@ -83,7 +83,7 @@ std::string StringMod::toString(const std::wstring &str) {
     return result;
 }
 
-int StringMod::ViewableCharCount(const std::wstring &str) {
+int StringMod::viewableCharCount(const std::wstring &str) {
     int count = 0;
     bool in_escape_sequence = false;
 

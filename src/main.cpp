@@ -11,6 +11,7 @@
 #include "Globals.h"
 #include "Movable.h"
 #include "Spinners.h"
+#include "StringMod.h"
 #include "Terminfo.h"
 #include "TextBox.h"
 #include "TUI.h"
@@ -124,11 +125,14 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
     box->addCrossbar(tui.getHeight() - 3);
     const auto usersBox = std::make_shared<Box>(tui.getWidth() - 22, 0, 22, tui.getHeight() - 2);
     usersBox->addCrossbar(2);
+    const auto usersBoxText = std::make_shared<TextBox>(tui.getWidth() - 21, 3, 20, tui.getHeight() - 6);
+    usersBoxText->setDirection(TextBox::Direction::UP);
     const auto conUserMovable = std::make_shared<
         Movable>(Spinners().randomSpinner(fun), 0.08, tui.getWidth() - 8, 1, 7, 1);
 
     tui.offerTItem(box);
     tui.offerTItem(usersBox);
+    tui.offerTItem(usersBoxText);
     tui.offerTItem(conUserMovable);
     tui.offerTItem(chats);
 
@@ -147,7 +151,7 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
     } else {
         throw std::runtime_error("Invalid socket type");
     }
-
+    std::vector<std::pair<unsigned int, std::string> > clients;
 
     std::jthread listener(&Socket::listenThread, std::ref(*socket), std::ref(receivedMessages));
     std::stop_token stopToken = listener.get_stop_token();
@@ -157,6 +161,18 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
             chats->addLine(*message);
         } else if (receivedMessages.is_stopped()) {
             break;
+        }
+
+        if (auto newClientList = socket->getClients(); clients != newClientList) {
+            clients = newClientList;
+            usersBoxText->clear();
+            size_t position = 0;
+            for (const auto &[id, ip]: clients) {
+                const unsigned int color = StringMod::chooseColor(position);
+                std::wstring users = StringMod::color(StringMod::toWString(ip) + L"#" + std::to_wstring(id), color);
+                usersBoxText->addLine(users);
+                ++position;
+            }
         }
 
         if (UserInput::inputAvailable()) {

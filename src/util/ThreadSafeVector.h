@@ -14,6 +14,8 @@ public:
 
     void remove(int index);
 
+    void clear();
+
     std::wstring get (int index);
 
 

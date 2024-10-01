@@ -51,7 +51,7 @@ void Buffer::draw(const int x, const int y, const std::wstring &str) {
         }
 
         if (StringMod::isViewable(str[i]) && !current_cell.empty()) {
-            if (const int viewableChars = StringMod::ViewableCharCount(current_cell); viewableChars != 0) {
+            if (const int viewableChars = StringMod::viewableCharCount(current_cell); viewableChars != 0) {
                 m_buffer[y][pos] = current_cell;
                 pos++;
                 current_cell.clear();

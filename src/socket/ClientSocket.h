@@ -8,6 +8,10 @@ public:
     explicit ClientSocket() : Socket(false) {
     }
 
+    std::vector<std::pair<unsigned int, std::string>> getClients() override {
+        return {};
+    }
+
     void initSocket(const std::string &port, const std::string &hostname);
 
     void sendMessage(const std::wstring &message, unsigned int client) override;

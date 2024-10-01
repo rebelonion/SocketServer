@@ -3,7 +3,7 @@
 #include "Globals.h"
 #include "Logger.h"
 
-void ClientSocket::initSocket(const std::string& port, const std::string &hostname) {
+void ClientSocket::initSocket(const std::string &port, const std::string &hostname) {
     Socket::initSocket(port);
     m_hostname = hostname;
     connectToServer();
@@ -46,5 +46,8 @@ std::generator<std::wstring> ClientSocket::receiveMessages() {
     }
 }
 
-void ClientSocket::startThreads() {}
-void ClientSocket::stopThreads() {}
+void ClientSocket::startThreads() {
+}
+
+void ClientSocket::stopThreads() {
+}

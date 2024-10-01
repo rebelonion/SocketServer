@@ -15,10 +15,13 @@ public:
 
     void addLine(const std::wstring &line);
 
+    void clear();
+
     void setDirection(Direction direction);
 
 private:
     Direction m_direction = DOWN;
     ThreadSafeVector m_lines;
     bool m_redrawNeeded = true;
+    bool m_fullRedrawNeeded = true;
 };
