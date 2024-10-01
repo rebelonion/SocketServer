@@ -6,7 +6,7 @@ Box::Box(const int x, const int y, const int width, const int height): TUIItem(x
 }
 
 bool Box::update(double delta, Buffer &buffer) {
-    if (!m_draw) {
+    [[likely]] if (!m_draw) {
         return false;
     }
     drawBox(buffer);
@@ -40,7 +40,7 @@ void Box::updateIntersections(Buffer &buffer) {
                    || ch == Drawable::CROSS;
         };
 
-        auto hasHorizontalConnection = [](wchar_t ch) {
+        auto hasHorizontalConnection = [](const wchar_t ch) {
             return ch == Drawable::HORIZONTAL || ch == Drawable::TOP_LEFT || ch == Drawable::TOP_RIGHT
                    || ch == Drawable::BOTTOM_LEFT || ch == Drawable::BOTTOM_RIGHT || ch == Drawable::LEFT_TEE
                    || ch == Drawable::RIGHT_TEE || ch == Drawable::TOP_TEE || ch == Drawable::BOTTOM_TEE

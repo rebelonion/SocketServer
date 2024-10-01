@@ -26,7 +26,6 @@ void ServerSocket::sendMessage(const std::wstring &message, const unsigned int c
         logger.log(Logger::LogLevel::Error, "Socket not initialized");
         return;
     }
-    logger.log(Logger::LogLevel::Debug, L"Sending message: " + message);
     std::string sender = "Server";
     unsigned int color = 31;
     if (client != -1) {
@@ -43,6 +42,7 @@ void ServerSocket::sendMessage(const std::wstring &message, const unsigned int c
     std::lock_guard lock(m_clientsMutex);
     for (const auto &clientSocket: m_clients) {
         if (client != clientSocket.first) {
+            logger.log(Logger::LogLevel::Debug, L"Sending message: " + message);
             m_socket->sendMessageToClient(messageToSend, clientSocket);
         }
     }
