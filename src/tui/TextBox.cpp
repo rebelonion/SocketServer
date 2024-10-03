@@ -13,9 +13,9 @@ bool TextBox::update(double _, Buffer &buffer) {
         }
         m_fullRedrawNeeded = false;
     }
-    const int startY = (m_direction == DOWN) ? m_y + m_height - 1 : m_y;
-    const int endY = (m_direction == DOWN) ? m_y - 1 : m_y + m_height;
-    const int step = (m_direction == DOWN) ? -1 : 1;
+    const int startY = (m_direction == Direction::DOWN) ? m_y + m_height - 1 : m_y;
+    const int endY = (m_direction == Direction::DOWN) ? m_y - 1 : m_y + m_height;
+    const int step = (m_direction == Direction::DOWN) ? -1 : 1;
     const std::wstring emptyLine(m_width, L' ');
 
     int currentY = startY;
@@ -25,7 +25,7 @@ bool TextBox::update(double _, Buffer &buffer) {
     for (; currentY != endY; currentY += step) {
         if (lineIndex >= totalLines) break;
 
-        std::wstring line = (m_direction == DOWN)
+        std::wstring line = (m_direction == Direction::DOWN)
                                 ? m_lines.get(static_cast<int>(totalLines - lineIndex - 1))
                                 : m_lines.get(static_cast<int>(lineIndex));
         while (StringMod::viewableCharCount(line) > static_cast<size_t>(m_width)) {

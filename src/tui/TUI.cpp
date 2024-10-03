@@ -28,7 +28,7 @@ TUI::~TUI() {
     showCursor();
 }
 
-void TUI::draw(const int x, const int y, const std::wstring &str) {
+void TUI::draw(const int x, const int y, const std::wstring_view str) {
     if (y >= 0 && y < m_height) {
         if (const int len = std::min(static_cast<int>(str.length()), m_width - x); len > 0) {
             m_buffer.draw(x, y, str.substr(0, len));
@@ -75,7 +75,7 @@ void TUI::quickFullRender() {
         }
 
         DWORD written;
-        WriteConsoleW(hConsole, line.c_str(), line.length(), &written, nullptr);
+        WriteConsoleW(hConsole, line.c_str(), static_cast<unsigned long>(line.size()), &written, nullptr);
     }
 
     m_prevBuffer = m_buffer;
@@ -110,17 +110,17 @@ void TUI::updateTItems() {
 }
 
 void TUI::clearScreen() {
-    std::wcout << L"\033[2J\033[H";
+    std::wcout << L"\o{33}[2J\o{33}[H";
 }
 
 void TUI::moveCursor(const int x, const int y) {
-    std::wcout << std::format(L"\033[{};{}H", y + 1, x + 1);
+    std::wcout << std::format(L"\o{33}[{};{}H", y + 1, x + 1);
 }
 
 void TUI::hideCursor() {
-    std::wcout << L"\033[?25l";
+    std::wcout << L"\o{33}[?25l";
 }
 
 void TUI::showCursor() {
-    std::wcout << L"\033[?25h";
+    std::wcout << L"\o{33}[?25h";
 }

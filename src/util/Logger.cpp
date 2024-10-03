@@ -16,16 +16,17 @@ void Logger::log(const LogLevel level, const std::string &message, const std::so
 
 void Logger::log(const LogLevel level, const std::wstring &message, const std::source_location &location) const {
     switch (level) {
-        case LogLevel::Debug:
+            using enum LogLevel;
+        case Debug:
             logDebug(message, location);
             break;
-        case LogLevel::Info:
+        case Info:
             logInfo(message, location);
             break;
-        case LogLevel::Warning:
+        case Warning:
             logWarning(message, location);
             break;
-        case LogLevel::Error:
+        case Error:
             logError(message, location);
             break;
     }
@@ -70,15 +71,15 @@ void Logger::logError(const std::wstring &message, const std::source_location &l
 void Logger::logMessage(const std::wstring &message, const unsigned int color,
                         const std::source_location &location) const {
     const auto now = std::chrono::system_clock::now();
-    const auto time = std::chrono::system_clock::to_time_t(now);
-    std::wostringstream woss;
-    woss << std::put_time(std::localtime(&time), L"%Y-%m-%d %H:%M:%S");
-    const std::wstring timeString = woss.str();
+    auto local_time = std::chrono::zoned_time{std::chrono::current_zone(), now};
+    const std::wstring timeString = std::format(L"{:%Y-%m-%d %H:%M:%S}", local_time);
     std::wstring logMessage;
     if (m_minLevel == LogLevel::Debug) {
-        const std::wstring locationString = L"[" + StringMod::toWString(
-                                                std::filesystem::path(location.file_name()).filename().string()) + L":"
-                                            + std::to_wstring(location.line()) + L"] ";
+        const std::wstring locationString = std::format(L"[{}:{}] ",
+                                                        StringMod::toWString(
+                                                            std::filesystem::path(location.file_name()).filename().
+                                                            string()),
+                                                        location.line());
         logMessage = StringMod::color(L"[" + timeString + L"] " + locationString + message, color);
     } else {
         logMessage = StringMod::color(L"[" + timeString + L"] " + message, color);

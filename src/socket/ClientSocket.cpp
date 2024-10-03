@@ -1,10 +1,11 @@
 #include "ClientSocket.h"
 
+#include "Errors.h"
 #include "Globals.h"
 #include "Logger.h"
 
-void ClientSocket::initSocket(const std::string &port, const std::string &hostname) {
-    Socket::initSocket(port);
+void ClientSocket::initClientSocket(const std::string &port, const std::string_view hostname) {
+    Socket::initServerSocket(port);
     m_hostname = hostname;
     connectToServer();
 }
@@ -26,7 +27,7 @@ void ClientSocket::sendMessage(const std::wstring &message, unsigned int client)
 
 std::wstring ClientSocket::receiveMessage() const {
     if (!m_socket->isValid()) {
-        throw std::runtime_error("Socket not initialized");
+        throw SocketException("Socket not initialized");
     }
     try {
         return m_socket->receiveMessage();
@@ -46,8 +47,9 @@ std::generator<std::wstring> ClientSocket::receiveMessages() {
     }
 }
 
-void ClientSocket::startThreads() {
+void ClientSocket::startThreads() { //no client-specific threads
 }
 
-void ClientSocket::stopThreads() {
+
+void ClientSocket::stopThreads() { //no client-specific threads
 }

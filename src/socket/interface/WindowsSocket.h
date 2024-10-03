@@ -24,7 +24,7 @@ public:
 
     std::wstring receiveMessageFromClient(const std::pair<unsigned int, std::string> &client) override;
 
-    void connectTo(std::string hostname) override;
+    void connectTo(const std::string &hostname) override;
 
     void bindAndListen() override;
 

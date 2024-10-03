@@ -9,7 +9,7 @@ public:
 
     [[nodiscard]] std::wstring getLine(int y) const;
 
-    void draw(int x, int y, const std::wstring &str);
+    void draw(int x, int y, std::wstring_view str);
 
     void clear();
 

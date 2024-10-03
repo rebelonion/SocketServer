@@ -1,12 +1,14 @@
 #include "ServerSocket.h"
+
+#include "Errors.h"
 #include "Globals.h"
 #include "Logger.h"
 #include "StringMod.h"
 
 ServerSocket::~ServerSocket() = default;
 
-void ServerSocket::initSocket(const std::string port) {
-    Socket::initSocket(port);
+void ServerSocket::initServerSocket(const std::string &port) {
+    Socket::initServerSocket(port);
     m_socket->bindAndListen();
 }
 
@@ -38,7 +40,7 @@ void ServerSocket::sendMessage(const std::wstring &message, const unsigned int c
         if (const auto it = std::ranges::find_if(m_clients, [client](const auto &clientSocket) {
             return clientSocket.first == client;
         }); it != m_clients.end()) {
-            sender = it->second + "#" + std::to_string(it->first);
+            sender = std::format("{}#{}", it->second, it->first);
             const size_t position = std::distance(m_clients.begin(), it);
             color = StringMod::chooseColor(position);
         }
@@ -101,8 +103,8 @@ void ServerSocket::messageReceiverThread(const std::stop_token &stoken) {
             for (const auto &clientSocket: clients) {
                 if (auto message = m_socket->receiveMessageFromClient(clientSocket); !message.empty()) {
                     std::lock_guard lock(m_queueMutex);
-                    std::string client = clientSocket.second + "#" + std::to_string(clientSocket.first) + ": ";
-                    const unsigned int pos = std::distance(clients.begin(), std::ranges::find(clients, clientSocket));
+                    std::string client = std::format("{}#{}: ", clientSocket.second, clientSocket.first);
+                    const size_t pos = std::distance(clients.begin(), std::ranges::find(clients, clientSocket));
                     const unsigned int color = StringMod::chooseColor(pos);
                     m_messageQueue.emplace(StringMod::color(client, color), message);
                     m_queueCV.notify_one();

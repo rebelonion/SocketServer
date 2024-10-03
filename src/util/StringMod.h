@@ -8,7 +8,7 @@ public:
 
     static std::string color(const std::string &text, unsigned int color);
 
-    static unsigned int chooseColor(unsigned int pos);
+    static unsigned int chooseColor(size_t pos);
 
     static std::wstring toWString(const std::string &str);
 

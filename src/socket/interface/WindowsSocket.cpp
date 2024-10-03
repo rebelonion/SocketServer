@@ -1,5 +1,6 @@
 #include "WindowsSocket.h"
 
+#include "Errors.h"
 #include "StringMod.h"
 
 #ifdef _WIN32
@@ -44,15 +45,15 @@ std::wstring WindowsSocket::receiveMessageFromClient(const std::pair<unsigned in
     return receiveMessage(client);
 }
 
-void WindowsSocket::connectTo(const std::string hostname) {
+void WindowsSocket::connectTo(const std::string &hostname) {
     addrinfo *result = nullptr;
     if (getaddrinfo(hostname.c_str(), m_port.c_str(), &hints, &result) != 0) {
-        throw std::runtime_error("getaddrinfo failed");
+        throw SocketException("getaddrinfo failed");
     }
     if (connect(m_socket, result->ai_addr, static_cast<int>(result->ai_addrlen)) == SOCKET_ERROR) {
         freeaddrinfo(result);
         closesocket(m_socket);
-        throw std::runtime_error("Error connecting to server");
+        throw SocketException("Error connecting to server");
     }
     freeaddrinfo(result);
 }
@@ -61,15 +62,15 @@ void WindowsSocket::bindAndListen() {
     sockaddr_in serverAddr{};
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(std::stoi(m_port));
+    serverAddr.sin_port = htons(static_cast<unsigned short>(std::stoi(m_port)));
 
-    if (bind(m_socket, reinterpret_cast<sockaddr *>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
-        throw std::runtime_error("Error Binding Socket");
+    if (bind(m_socket, static_cast<sockaddr *>(static_cast<void *>(&serverAddr)), sizeof(serverAddr)) == SOCKET_ERROR) {
+        throw SocketException("Error Binding Socket");
     }
     logger.log(Logger::LogLevel::Info, "Success Binding Socket");
     logger.log(Logger::LogLevel::Info, "Listening for socket connection");
     if (listen(m_socket, SOMAXCONN) == SOCKET_ERROR) {
-        throw std::runtime_error("Error listening on socket");
+        throw SocketException("Error listening on socket");
     }
 }
 
@@ -82,18 +83,19 @@ std::optional<std::pair<unsigned int, std::string> > WindowsSocket::acceptConnec
     sockaddr_in clientAddr{};
     int clientAddrLen = sizeof(clientAddr);
 
-    const auto clientSocket = accept(m_socket, reinterpret_cast<sockaddr *>(&clientAddr), &clientAddrLen);
+    const auto clientSocket = accept(m_socket, static_cast<sockaddr *>(static_cast<void *>(&clientAddr)),
+                                     &clientAddrLen);
     if (clientSocket == INVALID_SOCKET) {
         if (const int error = WSAGetLastError(); error == WSAEWOULDBLOCK) {
             return std::nullopt;
         } else {
-            logger.log(Logger::LogLevel::Error, "Error accepting new socket: " + std::to_string(error));
+            logger.log(Logger::LogLevel::Error, std::format(L"Error accepting new socket: {}", error));
             return std::nullopt;
         }
     }
     setNonBlocking(clientSocket);
-    char clientIP[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
+    std::string clientIP(INET_ADDRSTRLEN, '\0');
+    inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP.data(), INET_ADDRSTRLEN);
     logger.log(Logger::LogLevel::Info, L"Socket Accepted from: " + StringMod::toWString(clientIP));
     return std::make_pair(clientSocket, clientIP);
 }
@@ -101,22 +103,23 @@ std::optional<std::pair<unsigned int, std::string> > WindowsSocket::acceptConnec
 void WindowsSocket::initializeWinsock() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        throw std::runtime_error("WSAStartup failed");
+        throw SocketException("WSAStartup failed");
     }
 }
 
 void WindowsSocket::createSocket() {
     m_socket = socket(hints.ai_family, hints.ai_socktype, hints.ai_protocol);
     if (m_socket == INVALID_SOCKET) {
-        throw std::runtime_error("Error creating socket");
+        throw SocketException("Error creating socket");
     }
     logger.log(Logger::LogLevel::Info, "Socket created");
 }
 
 void WindowsSocket::sendMessage(const std::wstring &message, const std::pair<unsigned int, std::string> &client) {
-    const std::string utf8Message = StringMod::toString(message);
-    if (send(client.first, utf8Message.c_str(), static_cast<int>(utf8Message.length()), 0) == SOCKET_ERROR) {
-        logger.log(Logger::LogLevel::Error, "Error sending message. Error code: " + std::to_string(WSAGetLastError()));
+    if (const std::string utf8Message = StringMod::toString(message); send(client.first, utf8Message.c_str(),
+                                                                           static_cast<int>(utf8Message.length()),
+                                                                           0) == SOCKET_ERROR) {
+        logger.log(Logger::LogLevel::Error, std::format(L"Error sending message. Error code: {}", WSAGetLastError()));
         return;
     }
     logger.log(Logger::LogLevel::Debug, L"Sent message: " + message);
@@ -125,7 +128,7 @@ void WindowsSocket::sendMessage(const std::wstring &message, const std::pair<uns
 void WindowsSocket::setNonBlocking(const SOCKET socket) {
     u_long mode = 1;
     if (ioctlsocket(socket, FIONBIO, &mode) != 0) {
-        throw std::runtime_error("Failed to set socket to non-blocking mode");
+        throw SocketException("Failed to set socket to non-blocking mode");
     }
 }
 
@@ -142,21 +145,20 @@ std::wstring WindowsSocket::receiveMessage(const std::pair<unsigned int, std::st
     const int ready = select(0, &readSet, nullptr, nullptr, &timeout);
 
     if (ready == SOCKET_ERROR) {
-        throw std::runtime_error("Select failed. Error code: " + std::to_string(WSAGetLastError()));
+        throw SocketException(std::format("Select failed. Error code: {}", WSAGetLastError()));
     }
 
     if (ready > 0) {
         const int bytesReceived = recv(client.first, buffer.data(), static_cast<int>(buffer.size()) - 1, 0);
         if (bytesReceived == SOCKET_ERROR) {
-            if (const int error = WSAGetLastError(); error != WSAEWOULDBLOCK) {
-                if (error == WSAECONNRESET || error == WSAESHUTDOWN || error == WSAENOTCONN || error ==
-                    WSAECONNABORTED) {
-                    throw SocketClosedException(client.second, client);
-                }
-
-                throw std::runtime_error("Error reading from socket. Error code: " + std::to_string(error));
+            const int error = WSAGetLastError();
+            if (error == WSAEWOULDBLOCK) {
+                return L"";
             }
-            return L"";
+            if (error >= WSAECONNABORTED && error <= WSAESHUTDOWN) {
+                throw SocketClosedException(client.second, client);
+            }
+            throw SocketException(std::format("Error reading from socket. Error code: {}", error));
         }
         if (bytesReceived == 0) {
             throw SocketClosedException(client.second, client);

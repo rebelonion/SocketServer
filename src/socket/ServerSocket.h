@@ -12,7 +12,7 @@ public:
 
     std::vector<std::pair<unsigned int, std::string> > getClients() override;
 
-    void initSocket(std::string port) override;
+    void initServerSocket(const std::string &port) override;
 
     void sendMessage(const std::wstring &message, unsigned int client) override;
 

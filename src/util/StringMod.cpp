@@ -2,17 +2,19 @@
 #include "StringMod.h"
 
 #include <locale>
-#include <codecvt>
+#include <format>
+
+#include "Errors.h"
 
 std::wstring StringMod::color(const std::wstring &text, const unsigned int color) {
-    return L"\033[" + std::to_wstring(color) + L"m" + text + L"\033[0m";
+    return std::format(L"\o{33}[{}m{}\o{33}[0m", color, text);
 }
 
 std::string StringMod::color(const std::string &text, const unsigned int color) {
-    return "\033[" + std::to_string(color) + "m" + text + "\033[0m";
+    return std::format("\o{33}[{}m{}\o{33}[0m", color, text);
 }
 
-unsigned int StringMod::chooseColor(const unsigned int pos) {
+unsigned int StringMod::chooseColor(const size_t pos) {
     return 32 + (pos % 5);
 }
 
@@ -37,7 +39,7 @@ std::wstring StringMod::toWString(const std::string &str) {
                             str[i + 3] & 0x3F);
             i += 4;
         } else {
-            throw std::runtime_error("Invalid UTF-8 sequence");
+            throw ParseError("Invalid UTF-8 sequence");
         }
 
         if (codepoint <= 0xFFFF) {
@@ -48,7 +50,7 @@ std::wstring StringMod::toWString(const std::string &str) {
             result.push_back(static_cast<wchar_t>(0xD800 | (codepoint >> 10)));
             result.push_back(static_cast<wchar_t>(0xDC00 | (codepoint & 0x3FF)));
         } else {
-            throw std::runtime_error("Invalid Unicode code point");
+            throw ParseError("Invalid Unicode code point");
         }
     }
 
@@ -76,7 +78,7 @@ std::string StringMod::toString(const std::wstring &str) {
             result.push_back(static_cast<char>(0x80 | (c & 0x3F)));
         } else {
             // Invalid Unicode code point
-            throw std::runtime_error("Invalid Unicode code point");
+            throw ParseError("Invalid Unicode code point");
         }
     }
 
@@ -124,17 +126,14 @@ bool StringMod::isViewable(const wchar_t c) {
         return false;
     }
 
+    //emoji and other non-BMP characters
+    if (isHighSurrogate(c) || isLowSurrogate(c)) {
+        return true;
+    }
+
     //zero-width characters
     if (c >= 0x200B && c <= 0x200F) {
         return false;
-    }
-
-    //emoji and other non-BMP characters
-    if (isHighSurrogate(c)) {
-        return true;
-    }
-    if (isLowSurrogate(c)) {
-        return true;
     }
 
     return true;

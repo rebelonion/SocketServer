@@ -8,6 +8,7 @@
 #include "Socket.h"
 #include "ServerSocket.h"
 #include "ClientSocket.h"
+#include "Errors.h"
 #include "Globals.h"
 #include "Movable.h"
 #include "Spinners.h"
@@ -44,13 +45,13 @@ int main(const int argc, char *argv[]) {
                 if (i + 1 < argc) {
                     address = argv[++i];
                 } else {
-                    throw std::runtime_error("Address argument is missing");
+                    throw StartupError("Address argument is missing");
                 }
             } else if (arg == "-p" || arg == "--port") {
                 if (i + 1 < argc) {
                     port = argv[++i];
                 } else {
-                    throw std::runtime_error("Port argument is missing");
+                    throw StartupError("Port argument is missing");
                 }
             } else if (arg == "-f" || arg == "--fun") {
                 fun = true;
@@ -74,22 +75,22 @@ int main(const int argc, char *argv[]) {
                             logger.setLogLevel(Logger::LogLevel::Error);
                             break;
                         default:
-                            throw std::runtime_error("Invalid log level");
+                            throw StartupError("Invalid log level");
                     }
                 }
             }
         }
 
         if (appSocket == nullptr) {
-            throw std::runtime_error("Either server or client must be specified");
+            throw StartupError("Either server or client must be specified");
         }
 
         if (port.empty()) {
-            throw std::runtime_error("Port must be specified");
+            throw StartupError("Port must be specified");
         }
 
         if (address.empty() && !appSocket->isServer()) {
-            throw std::runtime_error("Address must be specified for client");
+            throw StartupError("Address must be specified for client");
         }
 
         if (appSocket->isServer()) {
@@ -143,13 +144,13 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
     MessageQueue receivedMessages;
 
     if (auto *server = dynamic_cast<ServerSocket *>(socket)) {
-        server->initSocket(port);
+        server->initServerSocket(port);
         logger.log(Logger::LogLevel::Debug, "Port: " + port);
     } else if (auto *client = dynamic_cast<ClientSocket *>(socket)) {
-        client->initSocket(port, address);
+        client->initClientSocket(port, address);
         logger.log(Logger::LogLevel::Debug, "Address: " + address);
     } else {
-        throw std::runtime_error("Invalid socket type");
+        throw SocketException("Invalid socket type");
     }
     std::vector<std::pair<unsigned int, std::string> > clients;
 
@@ -169,7 +170,7 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
             size_t position = 0;
             for (const auto &[id, ip]: clients) {
                 const unsigned int color = StringMod::chooseColor(position);
-                std::wstring users = StringMod::color(StringMod::toWString(ip) + L"#" + std::to_wstring(id), color);
+                std::wstring users = StringMod::color(std::format(L"{}#{}", StringMod::toWString(ip), id), color);
                 usersBoxText->addLine(users);
                 ++position;
             }
@@ -206,7 +207,7 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
 void runServer(const std::string &port) {
     const auto server = dynamic_cast<ServerSocket *>(appSocket.get());
     if (!server) {
-        throw std::runtime_error("ServerSocket cast failed");
+        throw StartupError("ServerSocket cast failed");
     }
     runChatApplication(server, port);
 }
@@ -214,7 +215,7 @@ void runServer(const std::string &port) {
 void runClient(const std::string &port, const std::string &address) {
     const auto client = dynamic_cast<ClientSocket *>(appSocket.get());
     if (!client) {
-        throw std::runtime_error("ClientSocket cast failed");
+        throw StartupError("ClientSocket cast failed");
     }
     runChatApplication(client, port, address);
 }

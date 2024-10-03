@@ -71,6 +71,7 @@ add_executable(SocketServer
         src/tui/Box.h
         src/tui/Spinners.cpp
         src/tui/Spinners.h
+        src/util/Errors.h
 )
 
 if (WIN32)

@@ -14,7 +14,6 @@ public:
 
     virtual std::vector<std::pair<unsigned int, std::string> > getClients() = 0;
 
-    virtual void initSocket(std::string port);
 
     virtual void sendMessage(const std::wstring &message, unsigned int client) = 0;
 
@@ -31,6 +30,8 @@ private:
 
 protected:
     virtual std::generator<std::wstring> receiveMessages() = 0;
+
+    virtual void initServerSocket(const std::string &port);
 
     std::unique_ptr<SocketInterface> m_socket;
 };

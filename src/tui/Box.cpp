@@ -31,9 +31,12 @@ void Box::updateIntersections(Buffer &buffer) {
     }
 
     for (const auto &[x, y]: intersections) {
-        bool top = false, bottom = false, left = false, right = false;
+        bool top = false;
+        bool bottom = false;
+        bool left = false;
+        bool right = false;
 
-        auto hasVerticalConnection = [](wchar_t ch) {
+        auto hasVerticalConnection = [](const wchar_t ch) {
             return ch == Drawable::VERTICAL || ch == Drawable::TOP_LEFT || ch == Drawable::TOP_RIGHT
                    || ch == Drawable::BOTTOM_LEFT || ch == Drawable::BOTTOM_RIGHT || ch == Drawable::LEFT_TEE
                    || ch == Drawable::RIGHT_TEE || ch == Drawable::TOP_TEE || ch == Drawable::BOTTOM_TEE

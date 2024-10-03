@@ -1,7 +1,5 @@
 #include "Socket.h"
 
-#include <utility>
-
 #include "interface/LinuxSocket.h"
 #include "interface/WindowsSocket.h"
 
@@ -18,8 +16,8 @@ Socket::Socket(const bool isServer) {
 
 Socket::~Socket() = default;
 
-void Socket::initSocket(std::string port) {
-    m_socket->initSocket(std::move(port));
+void Socket::initServerSocket(const std::string &port) {
+    m_socket->initSocket(port);
 }
 
 bool Socket::isServer() const {

@@ -12,7 +12,7 @@ public:
         return {};
     }
 
-    void initSocket(const std::string &port, const std::string &hostname);
+    void initClientSocket(const std::string &port, std::string_view hostname);
 
     void sendMessage(const std::wstring &message, unsigned int client) override;
 

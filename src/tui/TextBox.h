@@ -5,7 +5,7 @@
 
 class TextBox final : public TUIItem {
 public:
-    enum Direction {
+    enum class Direction {
         UP, DOWN
     };
 
@@ -20,7 +20,7 @@ public:
     void setDirection(Direction direction);
 
 private:
-    Direction m_direction = DOWN;
+    Direction m_direction = Direction::DOWN;
     ThreadSafeVector m_lines;
     bool m_redrawNeeded = true;
     bool m_fullRedrawNeeded = true;

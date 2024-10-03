@@ -11,6 +11,8 @@
 #endif
 #include <stdexcept>
 
+#include "Errors.h"
+
 bool UserInput::inputAvailable() {
 #ifdef _WIN32
     return _kbhit();
@@ -120,6 +122,6 @@ char UserInput::getch() {
         if (tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
         return buf;
 #else
-    throw std::runtime_error("getch() is not needed on Windows");
+    throw StartupError("getch() is not needed on Windows");
 #endif
 }

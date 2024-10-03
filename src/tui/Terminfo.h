@@ -11,7 +11,8 @@
 class TermInfo {
 public:
     static std::pair<int, int> getTerminalSize() {
-        int width = 0, height = 0;
+        int width = 0;
+        int height = 0;
 
 #ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO csbi;

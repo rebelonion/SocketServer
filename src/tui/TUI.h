@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <chrono>
 #include <format>
@@ -14,7 +13,7 @@ public:
 
     ~TUI();
 
-    void draw(int x, int y, const std::wstring &str);
+    void draw(int x, int y, std::wstring_view str);
 
     void render();
 
@@ -33,7 +32,8 @@ public:
 private:
     Buffer m_buffer;
     Buffer m_prevBuffer;
-    int m_width, m_height;
+    int m_width;
+    int m_height;
     bool m_redrawNeeded = true;
     double m_lastFrameTime = 0.0;
     std::vector<std::shared_ptr<TUIItem> > m_TUIItems;

@@ -25,7 +25,7 @@ std::wstring Buffer::getLine(const int y) const {
     return result;
 }
 
-void Buffer::draw(const int x, const int y, const std::wstring &str) {
+void Buffer::draw(const int x, const int y, const std::wstring_view str) {
     if (y < 0 || y >= m_height) return;
 
     int pos = x;
