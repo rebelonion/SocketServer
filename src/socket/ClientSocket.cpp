@@ -38,18 +38,11 @@ std::wstring ClientSocket::receiveMessage() const {
     }
 }
 
-std::generator<std::wstring> ClientSocket::receiveMessages() {
-    while (m_socket->isValid() && !shouldExit) {
+void ClientSocket::listenThread(MessageQueue &receivedMessages) {
+    while (!shouldExit) {
         if (auto message = receiveMessage(); !message.empty()) {
-            co_yield message;
+            receivedMessages.push(message);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-}
-
-void ClientSocket::startThreads() { //no client-specific threads
-}
-
-
-void ClientSocket::stopThreads() { //no client-specific threads
 }

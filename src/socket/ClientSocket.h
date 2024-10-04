@@ -16,17 +16,12 @@ public:
 
     void sendMessage(const std::wstring &message, unsigned int client) override;
 
-
-    void startThreads() override;
-
-    void stopThreads() override;
-
 private:
     void connectToServer();
 
     [[nodiscard]] std::wstring receiveMessage() const;
 
-    std::generator<std::wstring> receiveMessages() override;
+    void listenThread(MessageQueue &receivedMessages) override;
 
     std::string m_hostname;
 };

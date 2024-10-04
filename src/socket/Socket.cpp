@@ -23,12 +23,3 @@ void Socket::initServerSocket(const std::string &port) {
 bool Socket::isServer() const {
     return m_isServer;
 }
-
-void Socket::listenThread(MessageQueue &receivedMessages) {
-    startThreads();
-    // ReSharper disable once CppLocalVariableMayBeConst (false positive)
-    for (auto receiver = receiveMessages(); const auto &message: receiver) {
-        receivedMessages.push(message);
-    }
-    stopThreads();
-}

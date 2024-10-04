@@ -17,19 +17,14 @@ public:
 
     virtual void sendMessage(const std::wstring &message, unsigned int client) = 0;
 
-    void listenThread(MessageQueue &receivedMessages);
+    virtual void listenThread(MessageQueue &receivedMessages) = 0;
 
     [[nodiscard]] bool isServer() const;
-
-    virtual void startThreads() = 0;
-
-    virtual void stopThreads() = 0;
 
 private:
     bool m_isServer = false;
 
 protected:
-    virtual std::generator<std::wstring> receiveMessages() = 0;
 
     virtual void initServerSocket(const std::string &port);
 

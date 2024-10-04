@@ -198,9 +198,6 @@ void runChatApplication(Socket *socket, const std::string &port, const std::stri
         }
         tui.render();
     }
-
-    socket->stopThreads();
-    listener.request_stop();
     logger.log(Logger::LogLevel::Debug, "Requesting stop");
 }
 

@@ -55,7 +55,8 @@ void ServerSocket::sendMessage(const std::wstring &message, const unsigned int c
     }
 }
 
-std::generator<std::wstring> ServerSocket::receiveMessages() {
+void ServerSocket::listenThread(MessageQueue &receivedMessages) {
+    startThreads();
     while (!m_connectionListenerThread.get_stop_token().stop_requested() && !shouldExit) {
         std::unique_lock lock(m_queueMutex);
 
@@ -70,11 +71,13 @@ std::generator<std::wstring> ServerSocket::receiveMessages() {
 
         if (messageAvailable) {
             while (!m_messageQueue.empty()) {
-                co_yield StringMod::toWString(m_messageQueue.front().first) + m_messageQueue.front().second;
+                receivedMessages.push(
+                    StringMod::toWString(m_messageQueue.front().first) + m_messageQueue.front().second);
                 m_messageQueue.pop();
             }
         }
     }
+    stopThreads();
 }
 
 
