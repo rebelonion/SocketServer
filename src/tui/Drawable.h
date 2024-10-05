@@ -14,4 +14,6 @@ struct Drawable {
     static constexpr wchar_t TOP_TEE = L'┬';
 
     static constexpr wchar_t CROSS = L'┼';
+
+    static constexpr wchar_t ESCAPE_SEQUENCE = L'\033';
 };

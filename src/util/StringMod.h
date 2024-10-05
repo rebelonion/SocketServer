@@ -23,4 +23,6 @@ public:
     static bool isLowSurrogate(wchar_t c);
 
     static bool isSurrogatePair(wchar_t high, wchar_t low);
+
+    static bool isSingleUnicodeWideCharacter(wchar_t c);
 };

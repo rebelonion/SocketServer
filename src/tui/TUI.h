@@ -40,7 +40,7 @@ private:
 
     static void clearScreen();
 
-    static void moveCursor(int x, int y);
+    static void moveCursor(int y);
 
     static void hideCursor();
 

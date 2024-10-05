@@ -72,6 +72,10 @@ add_executable(SocketServer
         src/tui/Spinners.cpp
         src/tui/Spinners.h
         src/util/Errors.h
+        src/ChatApplication.cpp
+        src/ChatApplication.h
+        src/AppConfig.cpp
+        src/AppConfig.h
 )
 
 if (WIN32)

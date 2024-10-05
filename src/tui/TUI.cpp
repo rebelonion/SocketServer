@@ -44,7 +44,7 @@ void TUI::render() {
     if (m_redrawNeeded) {
         for (int y = 0; y < m_height; ++y) {
             if (m_buffer.getLine(y) != m_prevBuffer.getLine(y)) {
-                moveCursor(0, y);
+                moveCursor(y);
                 std::wcout << m_buffer.getLine(y);
             }
         }
@@ -113,8 +113,8 @@ void TUI::clearScreen() {
     std::wcout << L"\o{33}[2J\o{33}[H";
 }
 
-void TUI::moveCursor(const int x, const int y) {
-    std::wcout << std::format(L"\o{33}[{};{}H", y + 1, x + 1);
+void TUI::moveCursor(const int y) {
+    std::wcout << std::format(L"\o{33}[{};{}H", y + 1, 1);
 }
 
 void TUI::hideCursor() {

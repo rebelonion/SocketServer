@@ -18,6 +18,5 @@ public:
 
     std::wstring get (int index);
 
-
     size_t size() const;
 };

@@ -8,7 +8,7 @@ public:
     explicit ClientSocket() : Socket(false) {
     }
 
-    std::vector<std::pair<unsigned int, std::string>> getClients() override {
+    std::vector<std::pair<unsigned int, std::string> > getClients() override {
         return {};
     }
 
