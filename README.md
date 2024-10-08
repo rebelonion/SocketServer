@@ -6,14 +6,14 @@ A modern C++23 project with a bundled message client/server and a custom TUI.
 
 - Written in modern C++23
 - Custom TUI (Text User Interface)
-- Full Unicode support
+- Full Unicode support (Requires a Unicode-compatible terminal)
 - Broadcast messaging (messages sent to the server are automatically sent to all connected clients)
 - Cross-platform support for Linux and Windows
 
 ## Build Status
 
 - Windows: ![Windows Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-- Linux: ![Linux Build Status](https://img.shields.io/badge/build-failing-red)
+- Linux: ![Linux Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 
 ## Usage
 
