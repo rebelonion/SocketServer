@@ -8,7 +8,6 @@
 #include "Logger.h"
 #include "Socket.h"
 #include "Globals.h"
-#include "Spinners.h"
 #include "TUI.h"
 
 int main(const int argc, char *argv[]) {

@@ -106,7 +106,7 @@ std::optional<std::wstring> UserInput::getInput(std::wstring oldVal) {
 #endif
 }
 
-UserInput & UserInput::getInstance() {
+UserInput &UserInput::getInstance() {
     static UserInput instance;
     return instance;
 }

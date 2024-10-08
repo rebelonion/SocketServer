@@ -1,7 +1,5 @@
 #include "ThreadSafeVector.h"
 
-#include <cassert>
-
 void ThreadSafeVector::add(const std::wstring &str) {
     std::lock_guard lock(mutex);
     vec.push_back(str);
