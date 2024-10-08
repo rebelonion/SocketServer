@@ -8,23 +8,22 @@
 #include <sys/select.h>
 #include <codecvt>
 #include <locale>
+#include <fcntl.h>
 #endif
 #include <stdexcept>
-
-#include "Errors.h"
 
 bool UserInput::inputAvailable() {
 #ifdef _WIN32
     return _kbhit();
 #else
-        timeval tv{};
+        if (!is_raw_mode) {
+            enableRawMode();
+        }
         fd_set fds;
-        tv.tv_sec = 0;
-        tv.tv_usec = 0;
+        timeval tv = {0, 0};
         FD_ZERO(&fds);
         FD_SET(STDIN_FILENO, &fds);
-        select(STDIN_FILENO + 1, &fds, nullptr, nullptr, &tv);
-        return FD_ISSET(STDIN_FILENO, &fds);
+        return select(STDIN_FILENO + 1, &fds, nullptr, nullptr, &tv) > 0;
 #endif
 }
 
@@ -70,58 +69,71 @@ std::optional<std::wstring> UserInput::getInput(std::wstring oldVal) {
     SetConsoleMode(hStdin, mode);
     return std::nullopt;
 #else
-    static std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
-    char buf[8] = {0};
+    char buf[8] = {};
     int bytesRead = 0;
-
     char c = getch();
     buf[bytesRead++] = c;
-
     if (c == 10) {
         return oldVal;
-    } else if (c == 127) {
+    } else if (c == 127 || c == 8) {  // Check for both DEL and BS
         if (!oldVal.empty()) {
             oldVal.pop_back();
             return oldVal;
         }
-    } else if ((c & 0xC0) == 0xC0) {
-        while (bytesRead < 4 && (c & 0xC0) == 0x80) {
+        return std::nullopt;
+    } else if ((c & 0x80) == 0x80) {  // multi-byte character
+        int expectedBytes;
+        if ((c & 0xE0) == 0xC0) expectedBytes = 2;
+        else if ((c & 0xF0) == 0xE0) expectedBytes = 3;
+        else if ((c & 0xF8) == 0xF0) expectedBytes = 4;
+        else return std::nullopt;  // Invalid UTF-8 start byte
+
+        while (bytesRead < expectedBytes) {
             c = getch();
+            if ((c & 0xC0) != 0x80) return std::nullopt;  // Invalid continuation byte
             buf[bytesRead++] = c;
         }
-
-        std::string mbStr(buf, bytesRead);
-        std::wstring wStr = converter.from_bytes(mbStr);
-
-        if (!wStr.empty()) {
-            return oldVal + wStr[0];
-        }
-    } else if (c >= 32) {
-        return oldVal + static_cast<wchar_t>(c);
     }
 
+    if (bytesRead > 0) {
+        const std::string mbStr(buf, bytesRead);
+        if (const std::wstring wStr = StringMod::toWString(mbStr); !wStr.empty()) {
+            return oldVal + wStr;
+        }
+    }
     return std::nullopt;
 #endif
 }
 
-char UserInput::getch() {
-#ifndef _WIN32
-        char buf = 0;
-        termios old = {0};
-        fflush(stdout);
-        if (tcgetattr(0, &old) < 0) perror("tcsetattr()");
-        old.c_lflag &= ~ICANON;
-        old.c_lflag &= ~ECHO;
-        old.c_cc[VMIN] = 1;
-        old.c_cc[VTIME] = 0;
-        if (tcsetattr(0, TCSANOW, &old) < 0) perror("tcsetattr ICANON");
-        if (read(0, &buf, 1) < 0) perror("read()");
-        old.c_lflag |= ICANON;
-        old.c_lflag |= ECHO;
-        if (tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
-        return buf;
-#else
-    throw StartupError("getch() is not needed on Windows");
-#endif
+UserInput & UserInput::getInstance() {
+    static UserInput instance;
+    return instance;
 }
+
+#ifndef _WIN32
+char UserInput::getch() {
+    if (!is_raw_mode) {
+        enableRawMode();
+    }
+    char c;
+    if (read(STDIN_FILENO, &c, 1) == 1) {
+        return c;
+    }
+    return '\0';
+}
+
+void UserInput::enableRawMode() {
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    atexit([]() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &getInstance().orig_termios); });
+
+    auto raw = orig_termios;
+    raw.c_lflag &= ~(ECHO | ICANON);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+    const int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+    is_raw_mode = true;
+}
+#endif

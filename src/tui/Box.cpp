@@ -1,5 +1,4 @@
 #include "Box.h"
-
 #include "Drawable.h"
 
 Box::Box(const int x, const int y, const int width, const int height): TUIItem(x, y, width, height) {
@@ -82,26 +81,26 @@ void Box::addCrossbar(const int y) {
 }
 
 void Box::drawSplitBar(Buffer &buffer, const int y) const {
-    buffer.draw(m_x, y, &Drawable::RIGHT_TEE);
-    buffer.draw(m_x + m_width - 1, y, &Drawable::LEFT_TEE);
+    buffer.draw(m_x, y, Drawable::RIGHT_TEE);
+    buffer.draw(m_x + m_width - 1, y, Drawable::LEFT_TEE);
     for (int x = m_x; x < m_x + m_width - 1; ++x) {
-        buffer.draw(x, y, &Drawable::HORIZONTAL);
+        buffer.draw(x, y, Drawable::HORIZONTAL);
     }
 }
 
 void Box::drawBox(Buffer &buffer) const {
     for (int x = m_x; x < m_x + m_width; ++x) {
-        buffer.draw(x, m_y, &Drawable::HORIZONTAL);
-        buffer.draw(x, m_y + m_height - 1, &Drawable::HORIZONTAL);
+        buffer.draw(x, m_y, Drawable::HORIZONTAL);
+        buffer.draw(x, m_y + m_height - 1, Drawable::HORIZONTAL);
     }
 
     for (int y = m_y; y < m_y + m_height - 1; ++y) {
-        buffer.draw(m_x, y, &Drawable::VERTICAL);
-        buffer.draw(m_x + m_width - 1, y, &Drawable::VERTICAL);
+        buffer.draw(m_x, y, Drawable::VERTICAL);
+        buffer.draw(m_x + m_width - 1, y, Drawable::VERTICAL);
     }
 
-    buffer.draw(m_x, m_y, &Drawable::TOP_LEFT);
-    buffer.draw(m_x + m_width - 1, m_y, &Drawable::TOP_RIGHT);
-    buffer.draw(m_x, m_y + m_height - 1, &Drawable::BOTTOM_LEFT);
-    buffer.draw(m_x + m_width - 1, m_y + m_height - 1, &Drawable::BOTTOM_RIGHT);
+    buffer.draw(m_x, m_y, Drawable::TOP_LEFT);
+    buffer.draw(m_x + m_width - 1, m_y, Drawable::TOP_RIGHT);
+    buffer.draw(m_x, m_y + m_height - 1, Drawable::BOTTOM_LEFT);
+    buffer.draw(m_x + m_width - 1, m_y + m_height - 1, Drawable::BOTTOM_RIGHT);
 }

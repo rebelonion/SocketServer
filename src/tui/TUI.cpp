@@ -8,17 +8,10 @@
 #endif
 #include <thread>
 #include <cstdlib>
-#include <iostream>
 #include "Globals.h"
 #include "StringMod.h"
 
 TUI::TUI(const int w, const int h): m_buffer(w, h), m_prevBuffer(w, h), m_width(w), m_height(h) {
-#ifdef _WIN32
-    _setmode(_fileno(stdout), _O_U16TEXT);
-#elif __linux__
-        std::locale::global(std::locale("en_US.UTF-8"));
-        std::wcout.imbue(std::locale());
-#endif
     clearScreen();
     hideCursor();
     quickFullRender();
@@ -45,10 +38,10 @@ void TUI::render() {
         for (int y = 0; y < m_height; ++y) {
             if (m_buffer.getLine(y) != m_prevBuffer.getLine(y)) {
                 moveCursor(y);
-                std::wcout << m_buffer.getLine(y);
+                cout << m_buffer.getLine(y);
             }
         }
-        std::wcout.flush();
+        cout.flush();
         m_prevBuffer = m_buffer;
         m_redrawNeeded = false;
     } else {
@@ -110,17 +103,17 @@ void TUI::updateTItems() {
 }
 
 void TUI::clearScreen() {
-    std::wcout << L"\o{33}[2J\o{33}[H";
+    cout << L"\o{33}[2J\o{33}[H";
 }
 
 void TUI::moveCursor(const int y) {
-    std::wcout << std::format(L"\o{33}[{};{}H", y + 1, 1);
+    cout << std::format(L"\o{33}[{};{}H", y + 1, 1);
 }
 
 void TUI::hideCursor() {
-    std::wcout << L"\o{33}[?25l";
+    cout << L"\o{33}[?25l";
 }
 
 void TUI::showCursor() {
-    std::wcout << L"\o{33}[?25h";
+    cout << L"\o{33}[?25h";
 }

@@ -6,6 +6,7 @@
 #include "Spinners.h"
 #include "TextBox.h"
 #include "TUI.h"
+#include "UserInput.h"
 
 
 class ChatApplication {
@@ -17,6 +18,7 @@ public:
     void run(bool fun);
 
 private:
+    UserInput& input = UserInput::getInstance();
     std::unique_ptr<Socket> m_socket;
     std::string m_port;
     std::string m_address;

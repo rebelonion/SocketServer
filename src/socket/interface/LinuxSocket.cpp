@@ -6,6 +6,7 @@
 #include <optional>
 #include <stdexcept>
 
+#include "Errors.h"
 #include "StringMod.h"
 
 #ifdef __linux__
@@ -19,7 +20,6 @@
 #include <vector>
 
 #include "Globals.h"
-#include "SocketInterface.h"
 #include "Logger.h"
 
 LinuxSocket::LinuxSocket() : m_socket(-1), m_isNonBlocking(false) {
@@ -60,7 +60,7 @@ std::wstring LinuxSocket::receiveMessageFromClient(const std::pair<unsigned int,
     return receiveMessage(client);
 }
 
-void LinuxSocket::connectTo(const std::string hostname) {
+void LinuxSocket::connectTo(const std::string &hostname) {
     addrinfo *result = nullptr;
     if (getaddrinfo(hostname.c_str(), m_port.c_str(), &hints, &result) != 0) {
         throw std::runtime_error("getaddrinfo failed");
@@ -167,7 +167,7 @@ std::wstring LinuxSocket::receiveMessage(const std::pair<unsigned int, std::stri
             return L"";
         }
         if (bytesReceived == 0) {
-            return L"";
+            throw SocketClosedException(client.second, client);
         }
         buffer[bytesReceived] = '\0';
         const std::string utf8Message(buffer.data());

@@ -26,6 +26,12 @@ std::wstring Buffer::getLine(const int y) const {
     return result;
 }
 
+void Buffer::draw(const int x, const int y, const wchar_t ch) {
+    std::wstring conv;
+    conv.push_back(ch);
+    draw(x, y, conv);
+}
+
 void Buffer::draw(const int x, const int y, const std::wstring_view str) {
     if (!isValidPosition(y)) return;
 
@@ -59,11 +65,6 @@ void Buffer::draw(const int x, const int y, const std::wstring_view str) {
 
     if (!current_cell.empty() && pos < m_width * m_height) {
         m_buffer[pos / m_width][pos % m_width] = current_cell;
-    }
-
-    if (y == 28) {
-        auto line = getLine(y);
-        auto line2 = getLine(y + 1);
     }
 }
 

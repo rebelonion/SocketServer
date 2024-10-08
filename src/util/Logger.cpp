@@ -1,9 +1,10 @@
 #include <chrono>
-#include <iostream>
 #include <filesystem>
 #include <source_location>
 
 #include "Logger.h"
+
+#include "Globals.h"
 #include "StringMod.h"
 
 Logger::Logger(const LogLevel minLevel) {
@@ -87,6 +88,6 @@ void Logger::logMessage(const std::wstring &message, const unsigned int color,
     if (m_customLogFunc) {
         m_customLogFunc(logMessage);
     } else {
-        std::wcout << logMessage;
+        cout << logMessage;
     }
 }

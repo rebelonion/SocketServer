@@ -9,8 +9,6 @@
 #include "Socket.h"
 #include "Globals.h"
 #include "Spinners.h"
-#include "Terminfo.h"
-#include "TextBox.h"
 #include "TUI.h"
 
 int main(const int argc, char *argv[]) {

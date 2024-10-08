@@ -1,4 +1,3 @@
-
 #include "StringMod.h"
 
 #include <locale>

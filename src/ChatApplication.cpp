@@ -97,17 +97,17 @@ void ChatApplication::updateClientList() {
 }
 
 void ChatApplication::handleUserInput() {
-    if (!UserInput::inputAvailable()) {
+    if (!input.inputAvailable()) {
         return;
     }
 
-    const auto input = UserInput::getInput(m_userChat);
-    if (!input.has_value()) {
+    const auto inputString = input.getInput(m_userChat);
+    if (!inputString.has_value()) {
         return;
     }
 
-    if (input.value() != m_userChat || m_userChat.empty()) {
-        updateUserChat(input.value());
+    if (inputString.value() != m_userChat || m_userChat.empty()) {
+        updateUserChat(inputString.value());
         return;
     }
 

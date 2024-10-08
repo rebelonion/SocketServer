@@ -76,6 +76,8 @@ add_executable(SocketServer
         src/ChatApplication.h
         src/AppConfig.cpp
         src/AppConfig.h
+        src/util/ConsoleOutput.cpp
+        src/util/ConsoleOutput.h
 )
 
 if (WIN32)
