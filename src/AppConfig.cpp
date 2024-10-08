@@ -51,6 +51,19 @@ void AppConfig::parseArgument(const std::string_view arg, const char *nextArg) {
     } else if (arg == "-l" || arg == "--log-level") {
         if (!nextArg) throw StartupError("Log level argument is missing");
         parseLogLevel(nextArg);
+    } else if (arg == "-h" || arg == "--help") {
+        cout << L"Usage: chat [options]\n"
+                     "Options:\n"
+                     "  -s, --server        Run as server\n"
+                     "  -c, --client        Run as client\n"
+                     "  -a, --address       Address to connect to\n"
+                     "  -p, --port          Port to connect to\n"
+                     "  -f, --fun           Enable fun indicators\n"
+                     "  -l, --log-level     Set log level (d, i, w, e)\n"
+                     "  -h, --help          Display this help message\n";
+        std::exit(0);
+    } else {
+        throw StartupError("Invalid argument: " + std::string(arg));
     }
 }
 
