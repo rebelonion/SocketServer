@@ -18,3 +18,13 @@ public:
     virtual std::optional<std::pair<unsigned int, std::string>> acceptConnectionListener() = 0;
 
 };
+
+typedef struct
+{
+    wchar_t type;
+    wchar_t number;
+    wchar_t total;
+    wchar_t message_length;
+    wchar_t message [10];
+    wchar_t checksum;
+} packet;

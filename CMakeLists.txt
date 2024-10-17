@@ -78,6 +78,8 @@ add_executable(SocketServer
         src/AppConfig.h
         src/util/ConsoleOutput.cpp
         src/util/ConsoleOutput.h
+        src/socket/interface/ErrorDetectionSocket.cpp
+        src/socket/interface/ErrorDetectionSocket.h
 )
 
 if (WIN32)
