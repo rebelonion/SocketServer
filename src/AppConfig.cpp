@@ -36,10 +36,12 @@ void AppConfig::validate() const {
 }
 
 void AppConfig::parseArgument(const std::string_view arg, const char *nextArg) {
-    if (arg == "-s" || arg == "--server") {
-        appSocket = std::make_unique<ServerSocket>();
+    if (arg == "-e" || arg == "--error-detection") {
+        errorDetection = true;
+    } else if (arg == "-s" || arg == "--server") {
+        appSocket = std::make_unique<ServerSocket>(errorDetection);
     } else if (arg == "-c" || arg == "--client") {
-        appSocket = std::make_unique<ClientSocket>();
+        appSocket = std::make_unique<ClientSocket>(errorDetection);
     } else if (arg == "-a" || arg == "--address") {
         if (!nextArg) throw StartupError("Address argument is missing");
         address = nextArg;
@@ -56,6 +58,7 @@ void AppConfig::parseArgument(const std::string_view arg, const char *nextArg) {
                      "Options:\n"
                      "  -s, --server        Run as server\n"
                      "  -c, --client        Run as client\n"
+                     "  -e, --error-detection Enable additional error detection\n"
                      "  -a, --address       Address to connect to\n"
                      "  -p, --port          Port to connect to\n"
                      "  -f, --fun           Enable fun indicators\n"

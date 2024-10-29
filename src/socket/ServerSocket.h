@@ -5,7 +5,7 @@
 
 class ServerSocket final : public Socket {
 public:
-    explicit ServerSocket() : Socket(true) {
+    explicit ServerSocket(bool errorDetection) : Socket(true, errorDetection) {
     }
 
     ~ServerSocket() override;

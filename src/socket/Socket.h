@@ -8,7 +8,7 @@
 
 class Socket {
 public:
-    explicit Socket(bool isServer);
+    explicit Socket(bool isServer, bool errorDetection);
 
     virtual ~Socket();
 

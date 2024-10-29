@@ -5,7 +5,7 @@
 
 class ClientSocket final : public Socket {
 public:
-    explicit ClientSocket() : Socket(false) {
+    explicit ClientSocket(bool errorDetection) : Socket(false, errorDetection) {
     }
 
     std::vector<std::pair<unsigned int, std::string> > getClients() override {

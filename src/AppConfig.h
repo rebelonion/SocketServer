@@ -18,6 +18,7 @@ public:
     std::string port;
     std::string address;
     bool fun = false;
+    bool errorDetection = false;
 
 private:
     void parseArgument(std::string_view arg, const char *nextArg);

@@ -12,6 +12,8 @@
 #endif
 #include <stdexcept>
 
+#include "StringMod.h"
+
 bool UserInput::inputAvailable() {
 #ifdef _WIN32
     return _kbhit();

@@ -4,14 +4,20 @@
 #include "interface/LinuxSocket.h"
 #include "interface/WindowsSocket.h"
 
-Socket::Socket(const bool isServer) {
+Socket::Socket(const bool isServer, bool errorDetection) {
     m_isServer = isServer;
 #ifdef _WIN32
-    //m_socket = std::make_unique<WindowsSocket>();
-    m_socket = std::make_unique<ErrorDetectionSocket>(std::make_unique<WindowsSocket>());
+    if (errorDetection) {
+        m_socket = std::make_unique<ErrorDetectionSocket>(std::make_unique<WindowsSocket>());
+    } else {
+        m_socket = std::make_unique<WindowsSocket>();
+    }
 #elif __linux__
-    //m_socket = std::make_unique<LinuxSocket>();
-    m_socket = std::make_unique<ErrorDetectionSocket>(std::make_unique<LinuxSocket>());
+    if (errorDetection) {
+        m_socket = std::make_unique<ErrorDetectionSocket>(std::make_unique<LinuxSocket>());
+    } else {
+        m_socket = std::make_unique<LinuxSocket>();
+    }
 #else
     throw std::runtime_error("Unsupported platform");
 #endif
